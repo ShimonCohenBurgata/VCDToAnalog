@@ -21,15 +21,6 @@ class VCDToAnalog(object):
             vcd_output_path (str) - path of vcd output path
             info_path (str) - path of info file
         """
-        if not os.path.isfile(vcd_path):
-            raise FileNotFoundError('{} is not a valid path'.format(vcd_path))
-
-        if not os.path.isfile(vcd_output_path):
-            raise FileNotFoundError('{} is not a valid path'.format(vcd_output_path))
-
-        if not os.path.isfile(info_path):
-            raise FileNotFoundError('{} is not a valid path'.format(info_path))
-
         self._vcd_path = vcd_path
         self._vcd_output_path = vcd_output_path
         copyfile(self._vcd_path, self._vcd_output_path)
