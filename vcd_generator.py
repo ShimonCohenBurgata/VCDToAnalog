@@ -140,7 +140,8 @@ class VCDToAnalog(object):
         ts_dict = {'ps': 1e12, 'ns': 1e9, 'us': 1e6, 'ms': 1e3, 's': 1}
         def_ts_val, def_ts_units = self._extract_formated_time_scale(self._timescale)
         opt_ts_val, opt_ts_units = self._extract_formated_time_scale(opt_time)
-        factor = int(ts_dict[def_ts_units] / ts_dict[opt_ts_units])
+        # factor = int(ts_dict[def_ts_units] / ts_dict[opt_ts_units])
+        factor = ts_dict[def_ts_units] / ts_dict[opt_ts_units]
         return opt_ts_val, opt_ts_units, def_ts_val, def_ts_units, factor
 
     def _start_time(self):
@@ -480,7 +481,7 @@ class VCDToAnalog(object):
         # Set end time step to be equal or higher than user request
         time_step_list.reverse()
         for item in time_step_list:
-            if item > tend:
+            if item >= tend:
                 max_tend = item
 
         # Write to string until find vcd first time step
@@ -557,7 +558,7 @@ class VCDToAnalog(object):
             for line in st.splitlines():
                 mo = re.search(r'^#(\d.*)$', line)
                 if mo:
-                    fw.write('#{}\n'.format(int(mo.group(1)) - min_tstart + delay))
+                    fw.write('#{}\n'.format(int(int(mo.group(1)) - min_tstart + delay)))
                 else:
                     fw.write('{}\n'.format(line))
         # If not reduced write the data as is
@@ -571,6 +572,20 @@ class VCDToAnalog(object):
         Not implemented yet
         """
         pass
+
+    def set_all_attributes(self, attri_dict):
+        """
+        Change attributes to all signal
+        Args:
+            dictionary of attribute name and attribute value pairs
+            for example:
+            {'trise': 0.1, 'tfall': 0.1, 'vih': 2.0, 'vil': 0.0, 'vol': 0.00001, 'voh': 1.6}
+
+        """
+        for key in attri_dict.keys():
+            for signal in self._signals.keys():
+                self._signals[signal].set_attri(key, attri_dict[key])
+        self._generate_info_file()
 
     def set_signal_attributes(self, signal_name, attri, val):
         """
@@ -589,12 +604,13 @@ class VCDToAnalog(object):
         Represent the VCD data base
         For debug purposes
         """
+        self._vcd = vcd.parse_vcd(self._vcd_output_path)
         st = ''
         if signal_name != '':
             wc = self._signals[signal_name].get_wildcard()
-            st += '\t' + wc + '\n'
-            st += '\t' * 2 + str(self._vcd[wc]['nets']) + '\n'
-            st += '\t' * 2 + str(self._vcd[wc]['tv']) + '\n'
+            st += '' + wc + '\n'
+            st += '  ' * 2 + str(self._vcd[wc]['nets']) + '\n'
+            st += '  ' * 2 + str(self._vcd[wc]['tv']) + '\n'
 
         else:
             for wildcard_key in self._vcd:
