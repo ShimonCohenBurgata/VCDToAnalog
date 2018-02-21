@@ -42,6 +42,7 @@ class VCDToAnalog(object):
         # Need to check again
         try:
             self._vcd = vcd.parse_vcd(self._vcd_output_path)
+            self._remove_consecutive_duplicates()
         except FileNotFoundError as e:
             print('{}'.format(e))
         self._init_signals()
@@ -70,6 +71,13 @@ class VCDToAnalog(object):
             fh.close()
         except FileNotFoundError as e:
             print('{}'.format(e))
+
+    def _remove_consecutive_duplicates(self):
+        """
+        Remove consecutive duplicates from vcd data base
+
+        """
+        pass
 
     def get_signal_info(self, signal_name):
         """
@@ -621,6 +629,7 @@ class VCDToAnalog(object):
             sig_data_dict[name] = self._vcd[wc]
             sig_attri_dict[name] = self._signals[name]
         return [sig_data_dict, sig_attri_dict]
+
 
     def __repr__(self, signal_name=''):
         """

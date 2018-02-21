@@ -6,9 +6,13 @@ def main():
     # sig_dict1 = {'CLK_160MHZ': {'5ns': '1'}}
     # sig_dict2 = {'CLK_25MHZ': {'520ns': '0'}}
 
-    vcd_source = r'U:\shimonc\gen6\signal_crt_analog_3.vcd'
-    vcd_target = r'U:\shimonc\gen6\signal_crt_analog_3_new.vcd'
-    vcd_info = r'U:\shimonc\gen6\signal_crt_analog_3_info.info'
+    # vcd_source = r'U:\shimonc\gen6\signal_crt_analog_3.vcd'
+    # vcd_target = r'U:\shimonc\gen6\signal_crt_analog_3_new.vcd'
+    # vcd_info = r'U:\shimonc\gen6\signal_crt_analog_3_info.info'
+
+    vcd_source = r'signal_crt_analog_3.vcd'
+    vcd_target = r'signal_crt_analog_3_new.vcd'
+    vcd_info = r'signal_crt_analog_3_info.info'
 
     db = VCDToAnalog(vcd_source, vcd_target, vcd_info)
     # db.get_signal_info('CLK_25MHZ')
@@ -37,12 +41,14 @@ def main():
     # db.set_signal_attributes('CLK_25MHZ', 'tfall', 10)
 
     # plot_ob = db.signals_to_plot('CLK_25MHZ')
-    plot_ob = db.signals_to_plot('CLK_25MHZ', 'CLK_160MHZ', '15MHz_CLK', '5MHz_CLK')
-    pso = PlotSignals(plot_ob)
-    pso.plot_signals()
-    # #
+    # plot_ob = db.signals_to_plot('CLK_25MHZ', 'CLK_160MHZ', '15MHz_CLK', '5MHz_CLK')
+    # pso = PlotSignals(plot_ob)
+    # pso.plot_signals()
+    # # #
     # print(db.__repr__('CLK_25MHZ'))
     # print(db.__repr__())
+
+    print(db.__repr__())
 
 
 if __name__ == "__main__":
