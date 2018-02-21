@@ -346,6 +346,14 @@ See the representation of signal CLK_25MHZ
     [(5, '0')]
 
 
+------Action----------------------
+Plot the signals CLK_25MHZ, CLK_160MHZ, 15MHz_CLK
+
+-------Command -----------------
+>>> plot_ob = db.signals_to_plot('CLK_25MHZ', 'CLK_160MHZ', '15MHz_CLK')
+>>> pso = PlotSignals(plot_ob)
+>>> pso.plot_signals()
+
 
 
 

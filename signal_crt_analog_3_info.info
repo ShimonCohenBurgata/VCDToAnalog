@@ -1,15 +1,15 @@
 .alias *[*] *<*>
-.in CLK_160MHZ
-.vih 2.0 CLK_160MHZ
-.vil 0.0 CLK_160MHZ
-.trise 0.1 CLK_160MHZ
-.tfall 0.1 CLK_160MHZ
-
 .in CLK_25MHZ
 .vih 2.0 CLK_25MHZ
 .vil 0.0 CLK_25MHZ
 .trise 0.1 CLK_25MHZ
 .tfall 0.1 CLK_25MHZ
+
+.in CLK_160MHZ
+.vih 2.0 CLK_160MHZ
+.vil 0.0 CLK_160MHZ
+.trise 0.1 CLK_160MHZ
+.tfall 0.1 CLK_160MHZ
 
 .scope module I1 
 .hier 1

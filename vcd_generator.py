@@ -1,8 +1,8 @@
 import Verilog_VCD as vcd
 import re
 from shutil import copyfile
-from signal import Signal
-import os
+from signal_data import Signal
+from collections import OrderedDict
 
 
 class VCDToAnalog(object):
@@ -270,6 +270,7 @@ class VCDToAnalog(object):
         fo = open(self._vcd_output_path, 'w')
         fo.write(st)
         fo.close()
+        self._set_vcd()
 
     def _change_signal_value(self, input_string, signal_name, opt_time, value):
         """
@@ -372,6 +373,7 @@ class VCDToAnalog(object):
             else:
                 st += line + '\n'
         # return the manipulated string
+        self._set_vcd()
         return st
 
     def change_signals_value(self, signals_dict):
@@ -433,6 +435,7 @@ class VCDToAnalog(object):
                 # Close output file
                 fh.close()
 
+        self._set_vcd()
     def slice_vcd(self, formatted_tstart, formatted_tend, reduce=False, formatted_delay='0us'):
         """
         Slice the vcd file to a specific section
@@ -565,6 +568,7 @@ class VCDToAnalog(object):
         else:
             fw.write(st)
         fw.close()
+        self._set_vcd()
 
     def find_sequence(self, signals_dict):
         """
@@ -598,6 +602,25 @@ class VCDToAnalog(object):
         """
         self._signals[signal_name].set_attri(attri, val)
         self._generate_info_file()
+
+    def signals_to_plot(self, *args):
+        """
+        create plot object
+        Args:
+            *args (str) - signal names
+        Return:
+            2 item list
+                1. dictionary of signal time step values
+                2. dictionary of signal attribute objects
+        """
+        sig_data_dict = OrderedDict()
+        sig_attri_dict = OrderedDict()
+
+        for name in args:
+            wc = self._signals[name].get_wildcard()
+            sig_data_dict[name] = self._vcd[wc]
+            sig_attri_dict[name] = self._signals[name]
+        return [sig_data_dict, sig_attri_dict]
 
     def __repr__(self, signal_name=''):
         """
