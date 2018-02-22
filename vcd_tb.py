@@ -39,9 +39,9 @@ def main():
 
     # plot_ob = db.signals_to_plot('CLK_25MHZ')
 
-    # plot_ob = db.signals_to_plot('CLK_25MHZ', 'CLK_160MHZ', '15MHz_CLK', '5MHz_CLK')
-    # pso = PlotSignals(plot_ob)
-    # pso.plot_signals()
+    plot_ob = db.signals_to_plot('CLK_25MHZ', 'CLK_160MHZ', '15MHz_CLK', '5MHz_CLK')
+    pso = PlotSignals(plot_ob)
+    pso.plot_signals()
 
     # print(db.__repr__('CLK_25MHZ'))
     # print(db.__repr__())
