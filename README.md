@@ -1,3 +1,7 @@
+This project is under construction
+Not stable yet
+
+
 # VCDToAnalog
 Generate analog info file from digital VCD (Value Changed Dump)
 

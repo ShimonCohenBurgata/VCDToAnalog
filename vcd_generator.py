@@ -38,14 +38,74 @@ class VCDToAnalog(object):
         """
         Generate vcd data base
         """
-        # Maybe redundant vcd output file is already been check in constructor
-        # Need to check again
         try:
             self._vcd = vcd.parse_vcd(self._vcd_output_path)
             self._remove_consecutive_duplicates()
         except FileNotFoundError as e:
             print('{}'.format(e))
         self._init_signals()
+
+    def _remove_consecutive_duplicates(self):
+        """
+        Remove consecutive duplicates from vcd data base
+        and updates output file
+
+        """
+        # loop over all vcd data base wild cards
+        for wildcard in self._vcd.keys():
+            # flag for first time match
+            first_flag = True
+            with open(self._vcd_output_path) as fo:
+                st = ''
+
+                # var that hold last wildcard value
+                sentinel = None
+
+                # loop over all output file lines
+                for line in fo:
+
+                    # match wildcard assignment i.e. '1&'
+                    mo = re.search(r'^(\d+)(.*)$', line)
+
+                    # match and found for first time
+                    if mo and first_flag:
+
+                        # match wildcard, write line, set sentinel, set flag to false
+                        if mo.group(2) == wildcard:
+                            st += line
+                            sentinel = mo.group(1)
+                            first_flag = False
+
+                        # no wildcard match write line
+                        else:
+                            st += line
+
+                    # match not for the first time
+                    elif mo and not first_flag:
+
+                        # match wildcard
+                        if mo.group(2) == wildcard:
+
+                            # check repeatability and skip line
+                            if mo.group(1) == sentinel:
+                                pass
+
+                            # no repeatability write line and set sentinel
+                            else:
+                                st += line
+                                sentinel = mo.group(1)
+
+                        # match but no wildcard match write line
+                        else:
+                            st += line
+
+                    # no match write line
+                    else:
+                        st += line
+                # update output file
+                fh = open(self._vcd_output_path, 'w')
+                fh.write(st)
+                fh.close()
 
     def _init_signals(self):
         """
@@ -71,13 +131,6 @@ class VCDToAnalog(object):
             fh.close()
         except FileNotFoundError as e:
             print('{}'.format(e))
-
-    def _remove_consecutive_duplicates(self):
-        """
-        Remove consecutive duplicates from vcd data base
-
-        """
-        pass
 
     def get_signal_info(self, signal_name):
         """
@@ -444,6 +497,7 @@ class VCDToAnalog(object):
                 fh.close()
 
         self._set_vcd()
+
     def slice_vcd(self, formatted_tstart, formatted_tend, reduce=False, formatted_delay='0us'):
         """
         Slice the vcd file to a specific section
@@ -595,6 +649,13 @@ class VCDToAnalog(object):
 
         """
         for key in attri_dict.keys():
+
+            # convert '10ns' kind of format to vcd default time
+            if key == 'trise' or key == 'tfall':
+                time_convert_list = list(self._time_scale_convertor(attri_dict[key]))
+                # Convert user time steps to vcd default time step values
+                attri_dict[key] = time_convert_list[0] * time_convert_list[2] * time_convert_list[4]
+
             for signal in self._signals.keys():
                 self._signals[signal].set_attri(key, attri_dict[key])
         self._generate_info_file()
@@ -608,6 +669,12 @@ class VCDToAnalog(object):
             val (int) - the attribute value/
 
         """
+        # convert '10ns' kind of format to vcd default time
+        if attri == 'trise' or attri == 'tfall':
+            time_convert_list = list(self._time_scale_convertor(val))
+            # Convert user time steps to vcd default time step values
+            val = time_convert_list[0] * time_convert_list[2] * time_convert_list[4]
+
         self._signals[signal_name].set_attri(attri, val)
         self._generate_info_file()
 
@@ -629,7 +696,6 @@ class VCDToAnalog(object):
             sig_data_dict[name] = self._vcd[wc]
             sig_attri_dict[name] = self._signals[name]
         return [sig_data_dict, sig_attri_dict]
-
 
     def __repr__(self, signal_name=''):
         """
