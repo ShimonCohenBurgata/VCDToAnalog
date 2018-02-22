@@ -23,7 +23,7 @@ def main():
     # db.generate_reduced_vcd('50ns')
 
     # sig_dict = {'15MHz_CLK': {'300ns': '0', '350ns': '1'}, '5MHz_CLK': {'65000ps': '1', '133ns': '0'}}
-    # # sig_dict = {'5MHz_CLK': {'65ns': '1', '133ns': '0'}}
+    # sig_dict = {'5MHz_CLK': {'65ns': '1', '133ns': '0'}}
     # db.change_signals_value(sig_dict)
 
     # db.slice_vcd('142ns', '472ns')
@@ -33,10 +33,12 @@ def main():
     # db.set_all_attributes(attri_dict)
 
     # db.set_signal_attributes('CLK_25MHZ', 'vih', 1.8)
+    # db.set_signal_attributes('CLK_25MHZ', 'vil', -1)
     # db.set_signal_attributes('CLK_25MHZ', 'trise', '10000ps')
-    # # db.set_signal_attributes('CLK_25MHZ', 'trise', '10n')
+    # db.set_signal_attributes('CLK_25MHZ', 'trise', '15ns')
 
     # plot_ob = db.signals_to_plot('CLK_25MHZ')
+
     # plot_ob = db.signals_to_plot('CLK_25MHZ', 'CLK_160MHZ', '15MHz_CLK', '5MHz_CLK')
     # pso = PlotSignals(plot_ob)
     # pso.plot_signals()
