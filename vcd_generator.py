@@ -21,6 +21,7 @@ class VCDToAnalog(object):
             vcd_output_path (str) - path of vcd output path
             info_path (str) - path of info file
         """
+
         self._vcd_path = vcd_path
         self._vcd_output_path = vcd_output_path
         copyfile(self._vcd_path, self._vcd_output_path)

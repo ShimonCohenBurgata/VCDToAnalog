@@ -2,3 +2,6 @@
 __pycache__
 test.py
 plot_signals_tb
+pd69201_vcd_dump_res_det_to_ovl.txt
+pd69201_new.vcd
+pd69201_info.info
