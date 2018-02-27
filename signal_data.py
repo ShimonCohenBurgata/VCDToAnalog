@@ -98,7 +98,8 @@ class Signal(object):
         if self._size == 1:
             str_size = ''
         else:
-            str_size = '[{}:0]'.format(self._size - 1)
+            str_size = ''
+            # str_size = '[{}:0]'.format(self._size - 1)
 
         if self._hier != '':
             str_hier = '.scope module {} \n.hier 1'.format(self._hier) + '\n'
@@ -128,7 +129,7 @@ class Signal(object):
 
 # def main():
 #     # def __init__(self, wildcard, name, io, size, hier):
-#     sig = Signal('%', '25MHz_CLK', 'in', 1, 1)
+#     sig = Signal('%', '25MHz_CLK', 'in', 3, 1)
 #     sig.set_io('in')
 #     print(sig)
 #

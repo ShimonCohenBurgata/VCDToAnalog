@@ -1,52 +1,36 @@
-# import re
-#
-# wildcard = '"'
-# first_flag = True
-# sentinel = ''
-# with open('signal_crt_analog_3.vcd') as fo:
-#     st = ''
-#     for line in fo:
-#         mo = re.search(r'(\d+){}'.format(wildcard), line)
-#
-#         if mo and first_flag:
-#             st += line
-#             sentinel = mo.group(1)
-#             first_flag = False
-#
-#         elif mo and not first_flag:
-#             if mo.group(1) == sentinel:
-#                 pass
-#             else:
-#                 st += line
-#                 sentinel = mo.group(1)
-#         else:
-#             st += line
-
-# print(st)
-
-# data_reduced = []
-# for wildcard in self._vcd.keys():
-#     data = self._vcd[wildcard]['tv']
-#     idx = 1
-#     sentinel = data[0]
-#     data_reduced.append(data[0])
-#     while idx <= len(data) - 1:
-#         if data[idx][1] != sentinel[1]:
-#             data_reduced.append(data[idx])
-#             sentinel = data[idx]
-#             idx += 1
-#         else:
-#             sentinel = data[idx]
-#             idx += 1
-#
-#     self._vcd[wildcard]['tv'][:] = data_reduced
-#     data_reduced.clear()
-
 import re
-line = '1^#'
-wildcard = '('
-# mo = re.search(r'(\d+){}'.format(wildcard), line)
-mo = re.search(r'^(\d+)(.*)$'.format(wildcard), line)
+import time
+
+bit = '18^'
+bus = 'b10101 $('
+mo_bit = re.search(r'^(0|1)(.+)$', bit)
+mo_bus = re.search(r'^b(0|1).* (.+)$', bus)
+# if mo_bit:
+#     print(mo_bit.group(0))
+#     print(mo_bit.group(1))
+#     print(mo_bit.group(2))
+#
+# print('\n')
+#
+# if mo_bus:
+#     print(mo_bus.group(0))
+#     print(mo_bus.group(1))
+#     print(mo_bus.group(2))
+
+# t1 = time.time()
+# with open(r'pd69201_vcd_dump_res_det_to_ovl.vcd', 'r') as fo:
+#     file_list = fo.read().splitlines()
+# print(len(file_list))
+# print(time.time() - t1)
+
+# dct = {'#': '1#', '^': '0^', '%': 'b0001 %'}
+# if '#' in dct.keys():
+#     print(dct['#'])
+
+
+lst = ['\%', '\(']
+st = r'1%'
+
+mo = re.search(r'.*{}'.format(lst[0]), st)
 if mo:
-    print(mo.group(1))
-    print(type(mo.group(2)))
+    print(mo.group(0))
