@@ -44,69 +44,6 @@ class VCDToAnalog(object):
             print('{}'.format(e))
         self._init_signals()
 
-    # def remove_consecutive_duplicates(self):
-    #     """
-    #     Remove consecutive duplicates from vcd data base
-    #     and updates output file
-    #
-    #     """
-    #     # loop over all vcd data base wild cards
-    #     for wildcard in self._vcd.keys():
-    #         # flag for first time match
-    #         first_flag = True
-    #         with open(self._vcd_output_path) as fo:
-    #             lst = []
-    #
-    #             # var that hold last wildcard value
-    #             sentinel = None
-    #
-    #             # loop over all output file lines
-    #             for line in fo:
-    #
-    #                 # match wildcard assignment i.e. '1&'
-    #                 mo = re.search(r'^(\d+)(.*)$', line)
-    #
-    #                 # match and found for first time
-    #                 if mo and first_flag:
-    #
-    #                     # match wildcard, write line, set sentinel, set flag to false
-    #                     if mo.group(2) == wildcard:
-    #                         lst.append(line)
-    #                         sentinel = mo.group(1)
-    #                         first_flag = False
-    #
-    #                     # no wildcard match write line
-    #                     else:
-    #                         lst.append(line)
-    #
-    #                 # match not for the first time
-    #                 elif mo and not first_flag:
-    #
-    #                     # match wildcard
-    #                     if mo.group(2) == wildcard:
-    #
-    #                         # check repeatability and skip line
-    #                         if mo.group(1) == sentinel:
-    #                             pass
-    #
-    #                         # no repeatability write line and set sentinel
-    #                         else:
-    #                             lst.append(line)
-    #                             sentinel = mo.group(1)
-    #
-    #                     # match but no wildcard match write line
-    #                     else:
-    #                         lst.append(line)
-    #
-    #                 # no match write line
-    #                 else:
-    #                     lst.append(line)
-    #             # update output file
-    #             st = ''.join(lst)
-    #             fh = open(self._vcd_output_path, 'w')
-    #             fh.write(st)
-    #             fh.close()
-
     def remove_consecutive_duplicates(self):
         """
          Remove consecutive duplicates from vcd data base
