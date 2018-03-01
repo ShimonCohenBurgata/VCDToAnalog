@@ -718,111 +718,159 @@ class VCDToAnalog(object):
             fw.write(''.join(lst))
             fw.close()
 
-    def find_sequence(self, signal_name, first_value, second_value):
+    def find_bit_change(self, signal_name, value, opt_time):
         """
-        return list of time steps
-        """
-        # with open(self._vcd_output_path, 'r') as fo:
-        #     file_list = fo.read().splitlines()
-        #
-        # wildcard = self._vcd[signal_name]
-        pass
-
-    def set_all_attributes(self, attri_dict):
-        """
-        Change attributes to all signal
+        return dictionary of time steps where signal is changing to value
         Args:
-            dictionary of attribute name and attribute value pairs
-            for example:
-            {'trise': 0.1, 'tfall': 0.1, 'vih': 2.0, 'vil': 0.0, 'vol': 0.00001, 'voh': 1.6}
-        """
-        for key in attri_dict.keys():
-
-            # convert '10ns' kind of format to vcd default time
-            if key == 'trise' or key == 'tfall':
-                time_convert_list = list(self._time_scale_convertor(attri_dict[key]))
-                # Convert user time steps to vcd default time step values
-                attri_dict[key] = time_convert_list[0] * time_convert_list[2] * time_convert_list[4]
-
-            for signal in self._signals.keys():
-                self._signals[signal].set_attri(key, attri_dict[key])
-        self._generate_info_file()
-
-    def set_signal_attributes(self, signal_name, attributes, val):
-        """
-        Change a signal attribute
-        Args:
-            signal_name (str) - the name of the signal
-            attributes (str) - the name of the attribute options are 'trise', 'tfall', 'vih', 'vil', 'voh', 'vol'
-            val (int) - the attribute value/
-
-        """
-        # convert '10ns' kind of format to vcd default time
-        if attributes == 'trise' or attributes == 'tfall':
-            time_convert_list = list(self._time_scale_convertor(val))
-            # Convert user time steps to vcd default time step values
-            val = time_convert_list[0] * time_convert_list[2] * time_convert_list[4]
-
-        self._signals[signal_name].set_attri(attributes, val)
-        self._generate_info_file()
-
-    def signals_to_plot(self, *args):
-        """
-        create plot object
-        Args:
-            *args (str) - signal names
+            signal_name (str)
+            value (str) '0' or '1'
+            opt_time (str) 'ps', 'ns', 'us', 'ms', 's'
         Return:
-            2 item list
-                1. dictionary of signal time step values
-                2. dictionary of signal attribute objects
+            dictionary with keys as occurrence number and value as time step value
         """
-        sig_data_dict = OrderedDict()
-        sig_attri_dict = OrderedDict()
-        self._set_vcd()
 
-        for name in args:
-            wc = self._signals[name].get_wildcard()
-            sig_data_dict[name] = self._vcd[wc]
-            sig_attri_dict[name] = self._signals[name]
-        return [sig_data_dict, sig_attri_dict]
+        # time unit conversion dictionary
+        ts_dict = {'ps': 1e12, 'ns': 1e9, 'us': 1e6, 'ms': 1e3, 's': 1}
 
-    def __repr__(self, signal_name=''):
-        """
-        Represent the VCD data base
-        For debug purposes
-        """
-        # self._vcd = vcd.parse_vcd(self._vcd_output_path)
-        self._set_vcd()
-        st = ''
-        if signal_name != '':
-            wc = self._signals[signal_name].get_wildcard()
-            st += '' + wc + '\n'
-            st += '  ' * 2 + str(self._vcd[wc]['nets']) + '\n'
-            st += '  ' * 2 + str(self._vcd[wc]['tv']) + '\n'
+        # default vcd time scale
+        def_ts_val, def_ts_units = self._extract_formated_time_scale(self._timescale)
 
-        else:
-            for wildcard_key in self._vcd:
-                st += wildcard_key + '\n'
-                for key in self._vcd[wildcard_key]:
-                    st += '\t' + key + '\n'
-                    if key == 'nets':
-                        st += '\t' * 2 + str(self._vcd[wildcard_key][key]) + '\n'
-                    else:
-                        st += '\t' * 2 + str(self._vcd[wildcard_key][key]) + '\n'
+        # read output file
+        with open(self._vcd_output_path, 'r') as fo:
+            lines = fo.read().splitlines()
 
-        return st
+        # get the wildcard for the signal name
+        wildcard = self._signals[signal_name].get_wildcard()
 
-    def __str__(self):
-        """
-        Structure of analog info file
-        """
-        st = '.alias *[*] *<*>' + '\n'
+        # time step dictionary
+        time_step_dict = {}
 
-        for name in self._signals:
-            if self._signals[name].get_hier() == '':
-                st += str(self._signals[name]) + '\n'
-        for name in self._signals:
-            if self._signals[name].get_hier() != '':
-                st += str(self._signals[name]) + '\n'
+        # keys for dictionary
+        count = 1
 
-        return st
+        # loop over all the output file lines
+        for line in lines:
+
+            # search for time step match
+            mo = re.search(r'^#(\d.*)', line)
+
+            # if match set time step value
+            if mo:
+                time_step = mo.group(1)
+
+            # search for bit match i.e 1^ or 0&
+            mo_bit = re.search(r'^(0|1)(.+)$', line)
+
+            # if find bit match and the value == input value and the match is for signal name
+            if mo_bit and mo_bit.group(1) == value and mo_bit.group(2) == wildcard:
+                # add the value to the output dictionary
+                time_step_dict[count] = str(
+                    ts_dict[opt_time] * int(time_step) * def_ts_val / ts_dict[def_ts_units]) + opt_time
+                # change key value
+                count += 1
+
+        return time_step_dict
+
+
+def set_all_attributes(self, attri_dict):
+    """
+    Change attributes to all signal
+    Args:
+        dictionary of attribute name and attribute value pairs
+        for example:
+        {'trise': 0.1, 'tfall': 0.1, 'vih': 2.0, 'vil': 0.0, 'vol': 0.00001, 'voh': 1.6}
+    """
+    for key in attri_dict.keys():
+
+        # convert '10ns' kind of format to vcd default time
+        if key == 'trise' or key == 'tfall':
+            time_convert_list = list(self._time_scale_convertor(attri_dict[key]))
+            # Convert user time steps to vcd default time step values
+            attri_dict[key] = time_convert_list[0] * time_convert_list[2] * time_convert_list[4]
+
+        for signal in self._signals.keys():
+            self._signals[signal].set_attri(key, attri_dict[key])
+    self._generate_info_file()
+
+
+def set_signal_attributes(self, signal_name, attributes, val):
+    """
+    Change a signal attribute
+    Args:
+        signal_name (str) - the name of the signal
+        attributes (str) - the name of the attribute options are 'trise', 'tfall', 'vih', 'vil', 'voh', 'vol'
+        val (int) - the attribute value/
+
+    """
+    # convert '10ns' kind of format to vcd default time
+    if attributes == 'trise' or attributes == 'tfall':
+        time_convert_list = list(self._time_scale_convertor(val))
+        # Convert user time steps to vcd default time step values
+        val = time_convert_list[0] * time_convert_list[2] * time_convert_list[4]
+
+    self._signals[signal_name].set_attri(attributes, val)
+    self._generate_info_file()
+
+
+def signals_to_plot(self, *args):
+    """
+    create plot object
+    Args:
+        *args (str) - signal names
+    Return:
+        2 item list
+            1. dictionary of signal time step values
+            2. dictionary of signal attribute objects
+    """
+    sig_data_dict = OrderedDict()
+    sig_attri_dict = OrderedDict()
+    self._set_vcd()
+
+    for name in args:
+        wc = self._signals[name].get_wildcard()
+        sig_data_dict[name] = self._vcd[wc]
+        sig_attri_dict[name] = self._signals[name]
+    return [sig_data_dict, sig_attri_dict]
+
+
+def __repr__(self, signal_name=''):
+    """
+    Represent the VCD data base
+    For debug purposes
+    """
+    # self._vcd = vcd.parse_vcd(self._vcd_output_path)
+    self._set_vcd()
+    st = ''
+    if signal_name != '':
+        wc = self._signals[signal_name].get_wildcard()
+        st += '' + wc + '\n'
+        st += '  ' * 2 + str(self._vcd[wc]['nets']) + '\n'
+        st += '  ' * 2 + str(self._vcd[wc]['tv']) + '\n'
+
+    else:
+        for wildcard_key in self._vcd:
+            st += wildcard_key + '\n'
+            for key in self._vcd[wildcard_key]:
+                st += '\t' + key + '\n'
+                if key == 'nets':
+                    st += '\t' * 2 + str(self._vcd[wildcard_key][key]) + '\n'
+                else:
+                    st += '\t' * 2 + str(self._vcd[wildcard_key][key]) + '\n'
+
+    return st
+
+
+def __str__(self):
+    """
+    Structure of analog info file
+    """
+    st = '.alias *[*] *<*>' + '\n'
+
+    for name in self._signals:
+        if self._signals[name].get_hier() == '':
+            st += str(self._signals[name]) + '\n'
+    for name in self._signals:
+        if self._signals[name].get_hier() != '':
+            st += str(self._signals[name]) + '\n'
+
+    return st

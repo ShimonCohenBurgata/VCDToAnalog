@@ -34,3 +34,7 @@ st = r'1%'
 mo = re.search(r'.*{}'.format(lst[0]), st)
 if mo:
     print(mo.group(0))
+
+
+start time is 1998.753561(1ms)
+{1: '200002425400'}
