@@ -8,20 +8,20 @@ def main():
     # vcd_target = r'U:\shimonc\gen6\signal_crt_analog_3_new.vcd'
     # vcd_info = r'U:\shimonc\gen6\signal_crt_analog_3_info.info'
 
-    # vcd_source = r'signal_crt_analog_3.vcd'
-    # vcd_target = r'signal_crt_analog_3_new.vcd'
-    # vcd_info = r'signal_crt_analog_3_info.info'
+    vcd_source = r'signal_crt_analog_3.vcd'
+    vcd_target = r'signal_crt_analog_3_new.vcd'
+    vcd_info = r'signal_crt_analog_3_info.info'
 
-    vcd_source = r'pd69201_vcd_dump_res_det_to_ovl.vcd'
-    vcd_target = r'pd69201_new.vcd'
-    vcd_info = r'pd69201_info.info'
+    # vcd_source = r'pd69201_vcd_dump_res_det_to_ovl.vcd'
+    # vcd_target = r'pd69201_new.vcd'
+    # vcd_info = r'pd69201_info.info'
 
     db = VCDToAnalog(vcd_source, vcd_target, vcd_info)
     # db.get_signal_info('CLK_25MHZ')
 
     # db.remove_consecutive_duplicates()
 
-    db.show_start_time('1ms')
+    # db.show_start_time('1ns')
     # db.show_end_time('1ns')
     # db.show_sim_time('1ns')
 
@@ -58,7 +58,7 @@ def main():
 
     # db.remove_consecutive_duplicates()
 
-    print(db.find_bit_change('res_det_block_en_d', '1', 'ms'))
+    # print(db.find_bit_change('res_det_block_en_d', '1', 'ms'))
 
 
 if __name__ == "__main__":
