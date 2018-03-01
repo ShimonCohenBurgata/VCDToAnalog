@@ -21,7 +21,6 @@ class VCDToAnalog(object):
             vcd_output_path (str) - path of vcd output path
             info_path (str) - path of info file
         """
-
         self._vcd_path = vcd_path
         self._vcd_output_path = vcd_output_path
         copyfile(self._vcd_path, self._vcd_output_path)
@@ -30,9 +29,9 @@ class VCDToAnalog(object):
         self._info_path = info_path
         self._set_vcd()
         self._timescale = vcd.get_timescale()
-        self._starttime = self._start_time()
-        self._endtime = self._end_time()
-        self._simtime = self._endtime - self._starttime
+        self._simulation_start_time = self._start_time()
+        self._simulation_end_time = self._end_time()
+        self._total_simulation_time = self._simulation_end_time - self._simulation_start_time
         self._generate_info_file()
 
     def _set_vcd(self):
@@ -41,72 +40,79 @@ class VCDToAnalog(object):
         """
         try:
             self._vcd = vcd.parse_vcd(self._vcd_output_path)
-            self._remove_consecutive_duplicates()
         except FileNotFoundError as e:
             print('{}'.format(e))
         self._init_signals()
 
-    def _remove_consecutive_duplicates(self):
+    def remove_consecutive_duplicates(self):
         """
-        Remove consecutive duplicates from vcd data base
-        and updates output file
+         Remove consecutive duplicates from vcd data base
+         and updates output file
 
         """
-        # loop over all vcd data base wild cards
-        for wildcard in self._vcd.keys():
-            # flag for first time match
-            first_flag = True
-            with open(self._vcd_output_path) as fo:
-                st = ''
+        # dictionary that contains all signals wildcards
+        wildcard_dict = {}
+        lst = []
 
-                # var that hold last wildcard value
-                sentinel = None
+        # initiate dictionary with empty string
+        for wildcard_key in self._vcd:
+            wildcard_dict[wildcard_key] = ''
 
-                # loop over all output file lines
-                for line in fo:
+        # put all lines in list
+        with open(self._vcd_output_path, 'r') as fo:
+            file_list = fo.read().splitlines()
 
-                    # match wildcard assignment i.e. '1&'
-                    mo = re.search(r'^(\d+)(.*)$', line)
+        # loop over all list items
+        for line in file_list:
+            # try to match bit data line
+            mo_bit = re.search(r'^(0|1)(.+)$', line)
 
-                    # match and found for first time
-                    if mo and first_flag:
+            # try to match bus data line
+            mo_bus = re.search(r'^b(0|1).* (.+)$', line)
 
-                        # match wildcard, write line, set sentinel, set flag to false
-                        if mo.group(2) == wildcard:
-                            st += line
-                            sentinel = mo.group(1)
-                            first_flag = False
+            # match bit data line
+            if mo_bit:
+                # assign wildcard in var
+                wildcard = mo_bit.group(2)
 
-                        # no wildcard match write line
-                        else:
-                            st += line
+                # check if the line equal line stored in dictionary
+                # line is duplicate
+                if wildcard_dict[wildcard] == line:
+                    # do not write line
+                    pass
+                # line is not duplicate
+                else:
+                    # write line
+                    lst.append(line)
 
-                    # match not for the first time
-                    elif mo and not first_flag:
+                    # change value in dictionary
+                    wildcard_dict[wildcard] = line
 
-                        # match wildcard
-                        if mo.group(2) == wildcard:
+            # match bus data line
+            elif mo_bus:
+                # assign wildcard in var
+                wildcard = mo_bus.group(2)
 
-                            # check repeatability and skip line
-                            if mo.group(1) == sentinel:
-                                pass
+                # check if the line equal line stored in dictionary
+                # line is duplicate
+                if wildcard_dict[wildcard] == line:
+                    # do not write line
+                    pass
+                else:
+                    # write line
+                    lst.append(line)
 
-                            # no repeatability write line and set sentinel
-                            else:
-                                st += line
-                                sentinel = mo.group(1)
+                    # change value in dictionary
+                    wildcard_dict[wildcard] = line
+            # do not match
+            else:
+                # write line
+                lst.append(line)
 
-                        # match but no wildcard match write line
-                        else:
-                            st += line
-
-                    # no match write line
-                    else:
-                        st += line
-                # update output file
-                fh = open(self._vcd_output_path, 'w')
-                fh.write(st)
-                fh.close()
+        # write list to output file
+        fh = open(self._vcd_output_path, 'w')
+        fh.write('\n'.join(lst))
+        fh.close()
 
     def _init_signals(self):
         """
@@ -128,7 +134,7 @@ class VCDToAnalog(object):
         """
         try:
             fh = open(self._info_path, 'w')
-            fh.write(self.__str__())
+            fh.write(str(self))
             fh.close()
         except FileNotFoundError as e:
             print('{}'.format(e))
@@ -202,7 +208,6 @@ class VCDToAnalog(object):
         ts_dict = {'ps': 1e12, 'ns': 1e9, 'us': 1e6, 'ms': 1e3, 's': 1}
         def_ts_val, def_ts_units = self._extract_formated_time_scale(self._timescale)
         opt_ts_val, opt_ts_units = self._extract_formated_time_scale(opt_time)
-        # factor = int(ts_dict[def_ts_units] / ts_dict[opt_ts_units])
         factor = ts_dict[def_ts_units] / ts_dict[opt_ts_units]
         return opt_ts_val, opt_ts_units, def_ts_val, def_ts_units, factor
 
@@ -278,8 +283,8 @@ class VCDToAnalog(object):
         return:
             (str) - simulation start time in user defined time scale
         """
-        self._starttime = self._start_time()
-        print(self._show_time(self._starttime, 'start', opt_time))
+        self._simulation_start_time = self._start_time()
+        print(self._show_time(self._simulation_start_time, 'start', opt_time))
 
     def show_end_time(self, opt_time):
         """
@@ -288,8 +293,8 @@ class VCDToAnalog(object):
               return:
                   (str) - simulation end time in user defined time scale
               """
-        self._endtime = self._end_time()
-        print(self._show_time(self._endtime, 'end', opt_time))
+        self._simulation_end_time = self._end_time()
+        print(self._show_time(self._simulation_end_time, 'end', opt_time))
 
     def show_sim_time(self, opt_time=''):
         """
@@ -298,10 +303,10 @@ class VCDToAnalog(object):
               return:
                   (str) - total simulation time in user defined time scale
               """
-        self._starttime = self._start_time()
-        self._endtime = self._end_time()
-        self._simtime = self._endtime - self._starttime
-        print(self._show_time(self._endtime - self._starttime, 'simulation', opt_time))
+        self._simulation_start_time = self._start_time()
+        self._simulation_end_time = self._end_time()
+        self._total_simulation_time = self._simulation_end_time - self._simulation_start_time
+        print(self._show_time(self._simulation_end_time - self._simulation_start_time, 'simulation', opt_time))
 
     def generate_reduced_vcd(self, formatted_delay='0ns'):
         """
@@ -317,22 +322,23 @@ class VCDToAnalog(object):
                 '100us'
 
         """
-        self._start_time()
+        self._simulation_start_time = self._start_time()
         ts_val, ts_units, def_ts_val, def_ts_units, factor = self._time_scale_convertor(formatted_delay)
         delay = int(ts_val * factor / def_ts_val)
 
-        st = ''
+        lst = []
         with open(self._vcd_output_path, 'r') as fo:
             for line in fo:
                 mo = re.search(r'^#(\d.*)$', line)
                 if mo:
-                    st += '#{}\n'.format(int(mo.group(1)) - self._starttime + delay)
+                    lst.append('#{}\n'.format(int(mo.group(1)) - self._simulation_start_time + delay))
                 else:
-                    st += line
+                    lst.append(line)
+        st = ''.join(lst)
         fo = open(self._vcd_output_path, 'w')
         fo.write(st)
         fo.close()
-        self._set_vcd()
+        # self._set_vcd()
 
     def _change_signal_value(self, input_string, signal_name, opt_time, value):
         """
@@ -344,12 +350,12 @@ class VCDToAnalog(object):
 
             signal_name (str) - the name of the signal that we want to change
 
-            time (int) - The time where we want to change the signal value
+            opt_time (int) - The time where we want to change the signal value
 
             value (str) - the value of the signal that we want to change
 
         """
-        st = ''
+        lst = []
         wildcard = self._signals[signal_name].get_wildcard()
         value_time_string = value + wildcard
         prev_step = 0
@@ -358,19 +364,22 @@ class VCDToAnalog(object):
         done = True
 
         # wildcard flag check if wild card value already exists between 2 time steps
-        fwild = False
+        wildcard_flag = False
 
         ts_val, ts_units, def_ts_val, def_ts_units, factor = self._time_scale_convertor(opt_time)
         time = int(ts_val * factor / def_ts_val)
 
         # In case that time is higher than VCD end time
-        if time > self._endtime:
+        if time > self._simulation_end_time:
             return input_string + '#{}\n'.format(time) + value_time_string + '\n'
 
         # In case that time is within VCD time steps
         for line in input_string.splitlines():
 
+            # run until done flag is false
             if done:
+
+                # search time step matching
                 mo = re.search(r'^#(\d+)', line)
                 if mo:
                     # The time value at a line which have time step string
@@ -378,65 +387,82 @@ class VCDToAnalog(object):
 
                     # If the time step exists add the line
                     # and afterwards the add value wildcard string
-                    # put True in the flag fwild in order to check if the signal
+                    # put True in the flag wildcard_flag in order to check if the signal
                     # exists between current time step and next time step
                     # put False in done flag we finished the value insertion
                     if temp_step == time:
-                        st += line + '\n'
-                        st += value_time_string + '\n'
+                        lst.append(line + '\n')
+                        lst.append(value_time_string + '\n')
                         done = False
-                        fwild = True
+                        wildcard_flag = True
 
                     # Set prev_step to the current time step
-                    # this will enable us to set a signal value betwenn
+                    # this will enable us to set a signal value between
                     # 2 time steps
                     elif temp_step < time:
                         prev_step = temp_step
-                        st += line + '\n'
+                        lst.append(line + '\n')
 
                     # Check that time is between current time step and previous time step
                     # Set new value in between
                     # Set done to False we finished the value insertion
                     elif temp_step > time > prev_step:
-                        st += '#' + str(time) + '\n' + value_time_string + '\n'
-                        st += line + '\n'
+                        lst.append('#' + str(time) + '\n' + value_time_string + '\n')
+                        lst.append(line + '\n')
                         done = False
                 # we found no matching in the current line
                 # write the line and continue
                 else:
-                    st += line + '\n'
+                    lst.append(line + '\n')
             # We placed the signal value
             # now we need to search if a value already exist
             # between current time step and next time step
-            elif fwild:
+            elif wildcard_flag:
 
                 # Search if a signal already exist
-                mo1 = re.search(r'(\d+)\{}'.format(wildcard), line)
+                # mo1 = re.search(r'.*{}'.format('\\' + wildcard), line)
+
+                # match  bit data line i.e. 1& or 0)
+                mo_bit = re.search(r'^(0|1)(.+)$', line)
+
+                # match bus data line i.e. b1010 ^ or b0000 *&
+                mo_bus = re.search(r'^b(0|1).* (.+)$', line)
+
+                # match bit data line and wildcard in line == wildcard in keys
+                if mo_bit and mo_bit.group(2) == wildcard:
+                    mo1 = True
+
+                # match buss data line and wildcard in line == wildcard in keys
+                elif mo_bus and mo_bus.group(2) == wildcard:
+                    mo1 = True
+
+                # don't match bit data line nor bus data line
+                else:
+                    mo1 = False
 
                 # search the next time step
                 mo2 = re.search(r'^#(\d+)', line)
 
                 # If a signal exist do not add the line
                 if mo1:
-                    fwild = False
+                    wildcard_flag = False
 
                 # if we reached the next time step write the line
                 # and set wildcard flag to False
                 elif mo2:
-                    st += line + '\n'
-                    fwild = False
+                    lst.append(line + '\n')
+                    wildcard_flag = False
 
                 # No match at mo1 or mo2 write the line
                 else:
-                    st += line + '\n'
+                    lst.append(line + '\n')
             # We are finished to set the signal
             # and also remove the existing one if exist
             # write the rest of the lines
             else:
-                st += line + '\n'
-        # return the manipulated string
-        self._set_vcd()
-        return st
+                lst.append(line + '\n')
+
+        return ''.join(lst)
 
     def change_signals_value(self, signals_dict):
         """
@@ -473,12 +499,11 @@ class VCDToAnalog(object):
             # Loop over the signal time steps
             for time in signals_dict[sig].keys():
 
-                # Update end time
-                self._endtime = self._end_time()
+                # Update simulation end time
+                self._simulation_end_time = self._end_time()
 
                 # Clear strings
                 st = ''
-                st_out = ''
 
                 # Copy file in to sting
                 with open(self._vcd_output_path, 'r') as fo:
@@ -488,16 +513,22 @@ class VCDToAnalog(object):
                 # Open output file for writing
                 fh = open(self._vcd_output_path, 'w')
 
+                # add space character in case that the signal is bus i.e. b1010 $
+                var = signals_dict[sig][time]
+
+                var_mo = re.search(r'^b.*', var)
+                if var_mo:
+                    var = var + ' '
+
                 # Manipulate string
-                st_out = self._change_signal_value(st, sig, time, signals_dict[sig][time])
+                # st_out = self._change_signal_value(st, sig, time, signals_dict[sig][time])
+                st_out = self._change_signal_value(st, sig, time, var)
 
                 # Write manipulated string into output file
                 fh.write(st_out)
 
                 # Close output file
                 fh.close()
-
-        self._set_vcd()
 
     def slice_vcd(self, formatted_tstart, formatted_tend, reduce=False, formatted_delay='0us'):
         """
@@ -512,7 +543,7 @@ class VCDToAnalog(object):
         """
 
         # String that contained the manipulated data
-        st = ''
+        lst = []
         find_first_time_step_flag = True
         find_user_first_time_step_flag = True
         find_user_end_time_step_flag = True
@@ -561,13 +592,13 @@ class VCDToAnalog(object):
 
             # Write line if match wasn't found
             if not mo:
-                st += line
-                st += '\n'
+                lst.append(line + '\n')
+
             # First time step was found  exit the loop
             else:
                 find_first_time_step_flag = False
 
-        # Skip writing the lines until user statt time step is found
+        # Skip writing the lines until user start time step is found
         while find_user_first_time_step_flag:
 
             # Search next time step in vcd output file
@@ -583,8 +614,7 @@ class VCDToAnalog(object):
                 # If match was found, write the line
                 # prepare the line for next loop and exit the existing loop
                 else:
-                    st += line
-                    st += '\n'
+                    lst.append(line + '\n')
                     line = file_list.pop(0)
                     find_user_first_time_step_flag = False
             # If didn't find time step match skip the line
@@ -601,139 +631,183 @@ class VCDToAnalog(object):
 
                 # If didn't find end time step, write the line and move to next line
                 if int(mo.group(1)) != max_tend:
-                    st += line
-                    st += '\n'
+                    lst.append(line + '\n')
                     line = file_list.pop(0)
 
                 # If found end time step, write the line and exit the loop
                 else:
-                    st += line
-                    st += '\n'
+                    lst.append(line + '\n')
                     find_user_end_time_step_flag = False
 
             # If didn't find end time step, write the line and move to next line
             else:
-                st += line
-                st += '\n'
+                lst.append(line + '\n')
                 line = file_list.pop(0)
         # Open vcd output file to write the manipulated data
-        fw = open(self._vcd_output_path, 'w')
 
         # If reduced, reduced the manipulated data to #0 and add delay
         if reduce:
-            for line in st.splitlines():
-                mo = re.search(r'^#(\d.*)$', line)
-                if mo:
-                    fw.write('#{}\n'.format(int(int(mo.group(1)) - min_tstart + delay)))
-                else:
-                    fw.write('{}\n'.format(line))
+            self.generate_reduced_vcd(formatted_delay)
+
         # If not reduced write the data as is
         else:
-            fw.write(st)
-        fw.close()
-        self._set_vcd()
+            fw = open(self._vcd_output_path, 'w')
+            fw.write(''.join(lst))
+            fw.close()
 
-    def find_sequence(self, signals_dict):
+    def find_bit_change(self, signal_name, value, opt_time):
         """
-        find specific sequence between signals
-        Not implemented yet
-        """
-        pass
-
-    def set_all_attributes(self, attri_dict):
-        """
-        Change attributes to all signal
+        return dictionary of time steps where signal is changing to value
         Args:
-            dictionary of attribute name and attribute value pairs
-            for example:
-            {'trise': 0.1, 'tfall': 0.1, 'vih': 2.0, 'vil': 0.0, 'vol': 0.00001, 'voh': 1.6}
-
-        """
-        for key in attri_dict.keys():
-
-            # convert '10ns' kind of format to vcd default time
-            if key == 'trise' or key == 'tfall':
-                time_convert_list = list(self._time_scale_convertor(attri_dict[key]))
-                # Convert user time steps to vcd default time step values
-                attri_dict[key] = time_convert_list[0] * time_convert_list[2] * time_convert_list[4]
-
-            for signal in self._signals.keys():
-                self._signals[signal].set_attri(key, attri_dict[key])
-        self._generate_info_file()
-
-    def set_signal_attributes(self, signal_name, attri, val):
-        """
-        Change a signal attribute
-        Args:
-            signal_name (str) - the name of the signal
-            attri (str) - the name of the attribute options are 'trise', 'tfall', 'vih', 'vil', 'voh', 'vol'
-            val (int) - the attribute value/
-
-        """
-        # convert '10ns' kind of format to vcd default time
-        if attri == 'trise' or attri == 'tfall':
-            time_convert_list = list(self._time_scale_convertor(val))
-            # Convert user time steps to vcd default time step values
-            val = time_convert_list[0] * time_convert_list[2] * time_convert_list[4]
-
-        self._signals[signal_name].set_attri(attri, val)
-        self._generate_info_file()
-
-    def signals_to_plot(self, *args):
-        """
-        create plot object
-        Args:
-            *args (str) - signal names
+            signal_name (str)
+            value (str) '0' or '1'
+            opt_time (str) 'ps', 'ns', 'us', 'ms', 's'
         Return:
-            2 item list
-                1. dictionary of signal time step values
-                2. dictionary of signal attribute objects
+            dictionary with keys as occurrence number and value as time step value
         """
-        sig_data_dict = OrderedDict()
-        sig_attri_dict = OrderedDict()
 
-        for name in args:
-            wc = self._signals[name].get_wildcard()
-            sig_data_dict[name] = self._vcd[wc]
-            sig_attri_dict[name] = self._signals[name]
-        return [sig_data_dict, sig_attri_dict]
+        # time unit conversion dictionary
+        ts_dict = {'ps': 1e12, 'ns': 1e9, 'us': 1e6, 'ms': 1e3, 's': 1}
 
-    def __repr__(self, signal_name=''):
-        """
-        Represent the VCD data base
-        For debug purposes
-        """
-        self._vcd = vcd.parse_vcd(self._vcd_output_path)
-        st = ''
-        if signal_name != '':
-            wc = self._signals[signal_name].get_wildcard()
-            st += '' + wc + '\n'
-            st += '  ' * 2 + str(self._vcd[wc]['nets']) + '\n'
-            st += '  ' * 2 + str(self._vcd[wc]['tv']) + '\n'
+        # default vcd time scale
+        def_ts_val, def_ts_units = self._extract_formated_time_scale(self._timescale)
 
-        else:
-            for wildcard_key in self._vcd:
-                st += wildcard_key + '\n'
-                for key in self._vcd[wildcard_key]:
-                    st += '\t' + key + '\n'
-                    if key == 'nets':
-                        st += '\t' * 2 + str(self._vcd[wildcard_key][key]) + '\n'
-                    else:
-                        st += '\t' * 2 + str(self._vcd[wildcard_key][key]) + '\n'
+        # read output file
+        with open(self._vcd_output_path, 'r') as fo:
+            lines = fo.read().splitlines()
 
-        return st
+        # get the wildcard for the signal name
+        wildcard = self._signals[signal_name].get_wildcard()
 
-    def __str__(self):
-        """
-        Structure of analog info file
-        """
-        st = '.alias *[*] *<*>' + '\n'
+        # time step dictionary
+        time_step_dict = {}
 
-        for name in self._signals:
-            if self._signals[name].get_hier() == '':
-                st += self._signals[name].__str__() + '\n'
-        for name in self._signals:
-            if self._signals[name].get_hier() != '':
-                st += self._signals[name].__str__() + '\n'
+        # keys for dictionary
+        count = 1
 
-        return st
+        # loop over all the output file lines
+        for line in lines:
+
+            # search for time step match
+            mo = re.search(r'^#(\d.*)', line)
+
+            # if match set time step value
+            if mo:
+                time_step = mo.group(1)
+
+            # search for bit match i.e 1^ or 0&
+            mo_bit = re.search(r'^(0|1)(.+)$', line)
+
+            # if find bit match and the value == input value and the match is for signal name
+            if mo_bit and mo_bit.group(1) == value and mo_bit.group(2) == wildcard:
+                # add the value to the output dictionary
+                time_step_dict[count] = str(
+                    ts_dict[opt_time] * int(time_step) * def_ts_val / ts_dict[def_ts_units]) + opt_time
+                # change key value
+                count += 1
+
+        return time_step_dict
+
+
+def set_all_attributes(self, attri_dict):
+    """
+    Change attributes to all signal
+    Args:
+        dictionary of attribute name and attribute value pairs
+        for example:
+        {'trise': 0.1, 'tfall': 0.1, 'vih': 2.0, 'vil': 0.0, 'vol': 0.00001, 'voh': 1.6}
+    """
+    for key in attri_dict.keys():
+
+        # convert '10ns' kind of format to vcd default time
+        if key == 'trise' or key == 'tfall':
+            time_convert_list = list(self._time_scale_convertor(attri_dict[key]))
+            # Convert user time steps to vcd default time step values
+            attri_dict[key] = time_convert_list[0] * time_convert_list[2] * time_convert_list[4]
+
+        for signal in self._signals.keys():
+            self._signals[signal].set_attri(key, attri_dict[key])
+    self._generate_info_file()
+
+
+def set_signal_attributes(self, signal_name, attributes, val):
+    """
+    Change a signal attribute
+    Args:
+        signal_name (str) - the name of the signal
+        attributes (str) - the name of the attribute options are 'trise', 'tfall', 'vih', 'vil', 'voh', 'vol'
+        val (int) - the attribute value/
+
+    """
+    # convert '10ns' kind of format to vcd default time
+    if attributes == 'trise' or attributes == 'tfall':
+        time_convert_list = list(self._time_scale_convertor(val))
+        # Convert user time steps to vcd default time step values
+        val = time_convert_list[0] * time_convert_list[2] * time_convert_list[4]
+
+    self._signals[signal_name].set_attri(attributes, val)
+    self._generate_info_file()
+
+
+def signals_to_plot(self, *args):
+    """
+    create plot object
+    Args:
+        *args (str) - signal names
+    Return:
+        2 item list
+            1. dictionary of signal time step values
+            2. dictionary of signal attribute objects
+    """
+    sig_data_dict = OrderedDict()
+    sig_attri_dict = OrderedDict()
+    self._set_vcd()
+
+    for name in args:
+        wc = self._signals[name].get_wildcard()
+        sig_data_dict[name] = self._vcd[wc]
+        sig_attri_dict[name] = self._signals[name]
+    return [sig_data_dict, sig_attri_dict]
+
+
+def __repr__(self, signal_name=''):
+    """
+    Represent the VCD data base
+    For debug purposes
+    """
+    # self._vcd = vcd.parse_vcd(self._vcd_output_path)
+    self._set_vcd()
+    st = ''
+    if signal_name != '':
+        wc = self._signals[signal_name].get_wildcard()
+        st += '' + wc + '\n'
+        st += '  ' * 2 + str(self._vcd[wc]['nets']) + '\n'
+        st += '  ' * 2 + str(self._vcd[wc]['tv']) + '\n'
+
+    else:
+        for wildcard_key in self._vcd:
+            st += wildcard_key + '\n'
+            for key in self._vcd[wildcard_key]:
+                st += '\t' + key + '\n'
+                if key == 'nets':
+                    st += '\t' * 2 + str(self._vcd[wildcard_key][key]) + '\n'
+                else:
+                    st += '\t' * 2 + str(self._vcd[wildcard_key][key]) + '\n'
+
+    return st
+
+
+def __str__(self):
+    """
+    Structure of analog info file
+    """
+    st = '.alias *[*] *<*>' + '\n'
+
+    for name in self._signals:
+        if self._signals[name].get_hier() == '':
+            st += str(self._signals[name]) + '\n'
+    for name in self._signals:
+        if self._signals[name].get_hier() != '':
+            st += str(self._signals[name]) + '\n'
+
+    return st
