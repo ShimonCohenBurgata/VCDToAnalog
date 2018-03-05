@@ -1,5 +1,5 @@
 This project is under construction
-Not stable yet
+!!!!! Not stable yet !!!!!!!
 
 
 # VCDToAnalog
@@ -263,6 +263,13 @@ to 1.8
 ------------After change-----------------------
 .in CLK_25MHZ
 .vih 1.8 CLK_25MHZ
+
+---------------------Action------------------
+find the times where a value of a signal is been set in the vcd file
+
+-------------------Command-----------------------
+print(db.find_bit_change('5MHz_CLK', '1', 'ns'))
+
 
 
 -------------Change attribute to all signals -------------

@@ -1,7 +1,7 @@
-import Verilog_VCD as vcd
+import vcd_to_analog.Verilog_VCD as vcd
 import re
 from shutil import copyfile
-from signal_data import Signal
+from vcd_to_analog.signal_data import Signal
 from collections import OrderedDict
 
 
@@ -121,11 +121,20 @@ class VCDToAnalog(object):
         for now only inputs are supported
         This is a private method
         """
+        # loop over all signals
         for wildcard_key in self._vcd:
+            # get signal name i.e. '5MHz_CLK'
             sig_name = self._vcd[wildcard_key]['nets'][0]['name']
+
+            # set the signal to input. need to add output support
             sig_io = 'in'
+
+            # get signal size
             sig_size = int(self._vcd[wildcard_key]['nets'][0]['size'])
+            # get signal hierarchy
             sig_hier = self._vcd[wildcard_key]['nets'][0]['hier']
+
+            # create list of Signal objects
             self._signals[sig_name] = Signal(wildcard_key, sig_name, sig_io, sig_size, sig_hier)
 
     def _generate_info_file(self):
@@ -134,6 +143,7 @@ class VCDToAnalog(object):
         """
         try:
             fh = open(self._info_path, 'w')
+            # call object __str__()
             fh.write(str(self))
             fh.close()
         except FileNotFoundError as e:
@@ -157,6 +167,7 @@ class VCDToAnalog(object):
         """
         if signal_name not in self._signals.keys():
             raise KeyError('{} is not in signals list'.format(signal_name))
+        # call Signal object __str__()
         print(self._signals[signal_name])
 
     def _extract_formated_time_scale(self, opt_time):
@@ -172,15 +183,23 @@ class VCDToAnalog(object):
         ts_units = 'ns'
 
         """
+
+        # match optional time variable
         mo = re.search(r'(\d+)(\w+)', opt_time)
+
+        # if found match extract value in integer form and units in string form
         if mo:
             ts_val = int(mo.group(1))
             ts_unit = mo.group(2)
+
+            # check that that the extracted units are part of the allowed values
             if ts_unit not in ['ps', 'ns', 'us', 'ms', 's']:
                 raise ValueError(
                     '--> {} <-- is not a valid time unit allowed values are ps, ns, us, ms, s'.format(ts_unit))
+            # raise exception if units are not part of the allowed values
             else:
                 return ts_val, ts_unit
+        # raise exception if optional time is not a valid input
         else:
             raise BaseException(
                 '{} is not a valid time format an example for valid format is \'10ns\''.format(opt_time))
@@ -205,10 +224,19 @@ class VCDToAnalog(object):
             factor (int) - The factor between user defined time unit and vcd default unit
 
         """
+        # dict contains the relations between time units
         ts_dict = {'ps': 1e12, 'ns': 1e9, 'us': 1e6, 'ms': 1e3, 's': 1}
+
+        # get the vcd default time scale
         def_ts_val, def_ts_units = self._extract_formated_time_scale(self._timescale)
+
+        # get the optional user time scale
         opt_ts_val, opt_ts_units = self._extract_formated_time_scale(opt_time)
+
+        # calculates factor between user and vcd default time scales
         factor = ts_dict[def_ts_units] / ts_dict[opt_ts_units]
+
+        # return conversion and default values
         return opt_ts_val, opt_ts_units, def_ts_val, def_ts_units, factor
 
     def _start_time(self):
@@ -219,7 +247,11 @@ class VCDToAnalog(object):
         Return:
             st (int) - Simulation start time at VCD database time scale units
         """
+        # zero the start time variable
         st = 0
+
+        # open the output file search for first time step signature and break from the loop
+        # i.e. #10
         with open(self._vcd_output_path, 'r') as fo:
             for line in fo:
                 mo = re.search(r'^#(\d.*)$', line)
@@ -240,16 +272,20 @@ class VCDToAnalog(object):
             st (int) - Simulation end time at VCD database time scale units
         """
 
-        st = 0
+        # zero the end time variable
+        et = 0
+
+        # open the output file search for last time step signature
+        # i.e. #10
         with open(self._vcd_output_path, 'r') as fo:
             for line in fo:
                 mo = re.search(r'^#(\d.*)$', line)
                 if mo:
-                    st = int(mo.group(1))
+                    et = int(mo.group(1))
                 else:
                     pass
 
-        return st
+        return et
 
     def _show_time(self, time, time_string, opt_time=''):
         """
@@ -272,7 +308,10 @@ class VCDToAnalog(object):
 
 
         """
+        # call _time_scale_convertor and get values from method
         opt_ts_val, opt_ts_units, def_ts_val, def_ts_units, factor = self._time_scale_convertor(opt_time)
+
+        # return string with appropriate values and units per user request
         return '{} time is {}{}'.format(time_string, time * def_ts_val / (factor * opt_ts_val),
                                         '({}{})'.format(opt_ts_val, opt_ts_units))
 
@@ -283,7 +322,11 @@ class VCDToAnalog(object):
         return:
             (str) - simulation start time in user defined time scale
         """
+
+        # update object var _simulation_start_time
         self._simulation_start_time = self._start_time()
+
+        # print the result bu calling object _show_time
         print(self._show_time(self._simulation_start_time, 'start', opt_time))
 
     def show_end_time(self, opt_time):
@@ -293,7 +336,10 @@ class VCDToAnalog(object):
               return:
                   (str) - simulation end time in user defined time scale
               """
+        # update object var _simulation_start_time
         self._simulation_end_time = self._end_time()
+
+        # print the result bu calling object _show_time
         print(self._show_time(self._simulation_end_time, 'end', opt_time))
 
     def show_sim_time(self, opt_time=''):
@@ -303,9 +349,16 @@ class VCDToAnalog(object):
               return:
                   (str) - total simulation time in user defined time scale
               """
+        # update simulation start time
         self._simulation_start_time = self._start_time()
+
+        # update simulation stop time
         self._simulation_end_time = self._end_time()
+
+        # calculate total simulation time
         self._total_simulation_time = self._simulation_end_time - self._simulation_start_time
+
+        # print the result by calling _show_time_method
         print(self._show_time(self._simulation_end_time - self._simulation_start_time, 'simulation', opt_time))
 
     def generate_reduced_vcd(self, formatted_delay='0ns'):
@@ -322,23 +375,41 @@ class VCDToAnalog(object):
                 '100us'
 
         """
+
+        # update simulation start time
         self._simulation_start_time = self._start_time()
+
+        # get time scale conversion values
         ts_val, ts_units, def_ts_val, def_ts_units, factor = self._time_scale_convertor(formatted_delay)
+
+        # calculate user request delay
         delay = int(ts_val * factor / def_ts_val)
 
+        # initiate list to contain the manipulated file
         lst = []
+
+        # open vcd output file
         with open(self._vcd_output_path, 'r') as fo:
             for line in fo:
+
+                # match time step signature
                 mo = re.search(r'^#(\d.*)$', line)
+
+                # if match was found change the time step accordingly with regards to delay
                 if mo:
                     lst.append('#{}\n'.format(int(mo.group(1)) - self._simulation_start_time + delay))
+
+                # if match was not found write the line without change it
                 else:
                     lst.append(line)
+
+        # create string from string
         st = ''.join(lst)
+
+        # open vcd output file and write the manipulated string
         fo = open(self._vcd_output_path, 'w')
         fo.write(st)
         fo.close()
-        # self._set_vcd()
 
     def _change_signal_value(self, input_string, signal_name, opt_time, value):
         """
@@ -355,9 +426,16 @@ class VCDToAnalog(object):
             value (str) - the value of the signal that we want to change
 
         """
+        # initiate list to contain the manipulated file
         lst = []
+
+        # get the signal wildcard
         wildcard = self._signals[signal_name].get_wildcard()
+
+        # var that represents the change to be done i.e. 10#
         value_time_string = value + wildcard
+
+        # var for capturing the previous time step found
         prev_step = 0
 
         # flag for finding match
@@ -366,10 +444,13 @@ class VCDToAnalog(object):
         # wildcard flag check if wild card value already exists between 2 time steps
         wildcard_flag = False
 
+        # get time scale conversion values
         ts_val, ts_units, def_ts_val, def_ts_units, factor = self._time_scale_convertor(opt_time)
+
+        # calculate the time in default vcd file were we want to change the signal value
         time = int(ts_val * factor / def_ts_val)
 
-        # In case that time is higher than VCD end time
+        # in case that time is higher than VCD end time
         if time > self._simulation_end_time:
             return input_string + '#{}\n'.format(time) + value_time_string + '\n'
 
@@ -523,11 +604,7 @@ class VCDToAnalog(object):
                 # Manipulate string
                 # st_out = self._change_signal_value(st, sig, time, signals_dict[sig][time])
                 st_out = self._change_signal_value(st, sig, time, var)
-
-                # Write manipulated string into output file
                 fh.write(st_out)
-
-                # Close output file
                 fh.close()
 
     def slice_vcd(self, formatted_tstart, formatted_tend, reduce=False, formatted_delay='0us'):
@@ -542,12 +619,22 @@ class VCDToAnalog(object):
             formatted_delay (str) - how much delay to add if reduced is True
         """
 
-        # String that contained the manipulated data
+        # initiate list to contain the manipulated file
         lst = []
+
+        # flag for indicating vcd start time
         find_first_time_step_flag = True
+
+        # flag for indicating slice start time
         find_user_first_time_step_flag = True
+
+        # flag for indicating slice end time
         find_user_end_time_step_flag = True
+
+        # var for slice start time equal or lower than vcd
         min_tstart = 0
+
+        # var for slice stop time equal or higher than vcd
         max_tend = 0
 
         time_convert_list = list(map(self._time_scale_convertor, [formatted_tstart, formatted_tend, formatted_delay]))
@@ -555,7 +642,6 @@ class VCDToAnalog(object):
         # Convert user time steps to vcd default time step values
         tstart = time_convert_list[0][0] * time_convert_list[0][2] * time_convert_list[0][4]
         tend = time_convert_list[1][0] * time_convert_list[1][2] * time_convert_list[1][4]
-        delay = time_convert_list[2][0] * time_convert_list[2][2] * time_convert_list[2][4]
 
         # write the vcd output file into list
         with open(self._vcd_output_path) as fo:
@@ -708,106 +794,131 @@ class VCDToAnalog(object):
 
         return time_step_dict
 
+    def set_all_attributes(self, attri_dict):
+        """
+        Change attributes to all signal
+        Args:
+            dictionary of attribute name and attribute value pairs
+            for example:
+            {'trise': 0.1, 'tfall': 0.1, 'vih': 2.0, 'vil': 0.0, 'vol': 0.00001, 'voh': 1.6}
+        """
+        for key in attri_dict.keys():
 
-def set_all_attributes(self, attri_dict):
-    """
-    Change attributes to all signal
-    Args:
-        dictionary of attribute name and attribute value pairs
-        for example:
-        {'trise': 0.1, 'tfall': 0.1, 'vih': 2.0, 'vil': 0.0, 'vol': 0.00001, 'voh': 1.6}
-    """
-    for key in attri_dict.keys():
+            # convert '10ns' kind of format to vcd default time
+            if key == 'trise' or key == 'tfall':
+                time_convert_list = list(self._time_scale_convertor(attri_dict[key]))
+                # Convert user time steps to vcd default time step values
+                attri_dict[key] = time_convert_list[0] * time_convert_list[2] * time_convert_list[4]
 
+            # loop over all signal anf change their attributes
+            for signal in self._signals.keys():
+                self._signals[signal].set_attri(key, attri_dict[key])
+        # update the info file
+        self._generate_info_file()
+
+    def set_signal_attributes(self, signal_name, attributes, val):
+        """
+        Change a signal attribute
+        Args:
+            signal_name (str) - the name of the signal
+            attributes (str) - the name of the attribute options are 'trise', 'tfall', 'vih', 'vil', 'voh', 'vol'
+            val (int) - the attribute value/
+
+        """
         # convert '10ns' kind of format to vcd default time
-        if key == 'trise' or key == 'tfall':
-            time_convert_list = list(self._time_scale_convertor(attri_dict[key]))
+        if attributes == 'trise' or attributes == 'tfall':
+            time_convert_list = list(self._time_scale_convertor(val))
             # Convert user time steps to vcd default time step values
-            attri_dict[key] = time_convert_list[0] * time_convert_list[2] * time_convert_list[4]
+            val = time_convert_list[0] * time_convert_list[2] * time_convert_list[4]
 
-        for signal in self._signals.keys():
-            self._signals[signal].set_attri(key, attri_dict[key])
-    self._generate_info_file()
+        # change the signal attribute
+        self._signals[signal_name].set_attri(attributes, val)
 
+        # update the info file
+        self._generate_info_file()
 
-def set_signal_attributes(self, signal_name, attributes, val):
-    """
-    Change a signal attribute
-    Args:
-        signal_name (str) - the name of the signal
-        attributes (str) - the name of the attribute options are 'trise', 'tfall', 'vih', 'vil', 'voh', 'vol'
-        val (int) - the attribute value/
+    def signals_to_plot(self, *args):
+        """
+        generate data for plot object
+        Args:
+            *args (str) - signal names
+        Return:
+            2 item list
+                1. dictionary of signal time step values
+                2. dictionary of signal attribute objects
+        """
+        # dictionary for signals data value
+        sig_data_dict = OrderedDict()
 
-    """
-    # convert '10ns' kind of format to vcd default time
-    if attributes == 'trise' or attributes == 'tfall':
-        time_convert_list = list(self._time_scale_convertor(val))
-        # Convert user time steps to vcd default time step values
-        val = time_convert_list[0] * time_convert_list[2] * time_convert_list[4]
+        # dictionary for attributes value
+        sig_attri_dict = OrderedDict()
 
-    self._signals[signal_name].set_attri(attributes, val)
-    self._generate_info_file()
+        # update vcd data base
+        # needed if manipulation method was called before this method
+        self._set_vcd()
 
+        # loop over all user request signals
+        for name in args:
 
-def signals_to_plot(self, *args):
-    """
-    create plot object
-    Args:
-        *args (str) - signal names
-    Return:
-        2 item list
-            1. dictionary of signal time step values
-            2. dictionary of signal attribute objects
-    """
-    sig_data_dict = OrderedDict()
-    sig_attri_dict = OrderedDict()
-    self._set_vcd()
+            # get wildcard for signal == name
+            wc = self._signals[name].get_wildcard()
 
-    for name in args:
-        wc = self._signals[name].get_wildcard()
-        sig_data_dict[name] = self._vcd[wc]
-        sig_attri_dict[name] = self._signals[name]
-    return [sig_data_dict, sig_attri_dict]
+            # update data dict with values from vcd data base
+            sig_data_dict[name] = self._vcd[wc]
 
+            # update attributes with values from signals
+            sig_attri_dict[name] = self._signals[name]
 
-def __repr__(self, signal_name=''):
-    """
-    Represent the VCD data base
-    For debug purposes
-    """
-    # self._vcd = vcd.parse_vcd(self._vcd_output_path)
-    self._set_vcd()
-    st = ''
-    if signal_name != '':
-        wc = self._signals[signal_name].get_wildcard()
-        st += '' + wc + '\n'
-        st += '  ' * 2 + str(self._vcd[wc]['nets']) + '\n'
-        st += '  ' * 2 + str(self._vcd[wc]['tv']) + '\n'
+        return [sig_data_dict, sig_attri_dict]
 
-    else:
-        for wildcard_key in self._vcd:
-            st += wildcard_key + '\n'
-            for key in self._vcd[wildcard_key]:
-                st += '\t' + key + '\n'
-                if key == 'nets':
-                    st += '\t' * 2 + str(self._vcd[wildcard_key][key]) + '\n'
-                else:
-                    st += '\t' * 2 + str(self._vcd[wildcard_key][key]) + '\n'
+    def __repr__(self, signal_name=''):
+        """
+        Represent the VCD data base
+        For debug purposes
+        """
+        # update vcd data base
+        # needed if manipulation method was called before this method
+        self._set_vcd()
 
-    return st
+        # initiate empty string
+        st = ''
 
+        # in case that all signals are required to be present
+        if signal_name != '':
+            wc = self._signals[signal_name].get_wildcard()
+            st += '' + wc + '\n'
+            st += '  ' * 2 + str(self._vcd[wc]['nets']) + '\n'
+            st += '  ' * 2 + str(self._vcd[wc]['tv']) + '\n'
 
-def __str__(self):
-    """
-    Structure of analog info file
-    """
-    st = '.alias *[*] *<*>' + '\n'
+        # in case that specific signals are required
+        else:
+            for wildcard_key in self._vcd:
+                st += wildcard_key + '\n'
+                for key in self._vcd[wildcard_key]:
+                    st += '\t' + key + '\n'
+                    if key == 'nets':
+                        st += '\t' * 2 + str(self._vcd[wildcard_key][key]) + '\n'
+                    else:
+                        st += '\t' * 2 + str(self._vcd[wildcard_key][key]) + '\n'
 
-    for name in self._signals:
-        if self._signals[name].get_hier() == '':
-            st += str(self._signals[name]) + '\n'
-    for name in self._signals:
-        if self._signals[name].get_hier() != '':
-            st += str(self._signals[name]) + '\n'
+        return st
 
-    return st
+    def __str__(self):
+        """
+        Structure of analog info file
+        """
+
+        # make spectre understand vcd parenthesis form
+        st = '.alias *[*] *<*>' + '\n'
+
+        # start with signals in top level hierarchy
+        for name in self._signals:
+            if self._signals[name].get_hier() == '':
+                st += str(self._signals[name]) + '\n'
+
+        # continue with signals in lower hierarchy's
+        for name in self._signals:
+            if self._signals[name].get_hier() != '':
+                st += str(self._signals[name]) + '\n'
+
+        return st
