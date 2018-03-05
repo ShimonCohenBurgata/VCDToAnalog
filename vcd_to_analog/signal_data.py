@@ -1,6 +1,3 @@
-# class SignalError(Exception):
-#     pass
-
 
 class Signal(object):
     """
@@ -95,11 +92,8 @@ class Signal(object):
         return self._wildcard
 
     def __str__(self):
-        if self._size == 1:
-            str_size = ''
-        else:
-            str_size = ''
-            # str_size = '[{}:0]'.format(self._size - 1)
+
+        str_size = ''
 
         if self._hier != '':
             str_hier = '.scope module {} \n.hier 1'.format(self._hier) + '\n'
@@ -125,14 +119,3 @@ class Signal(object):
             raise ValueError("io can be input or output")
 
         return st
-
-
-# def main():
-#     # def __init__(self, wildcard, name, io, size, hier):
-#     sig = Signal('%', '25MHz_CLK', 'in', 3, 1)
-#     sig.set_io('in')
-#     print(sig)
-#
-#
-# if __name__ == "__main__":
-#     main()

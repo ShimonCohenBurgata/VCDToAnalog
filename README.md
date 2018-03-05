@@ -1,5 +1,5 @@
 This project is under construction
-Not stable yet
+!!!!! Not stable yet !!!!!!!
 
 
 # VCDToAnalog
@@ -19,10 +19,10 @@ create copied vcd file
 create info file
 
 -------Command--------------------
->>> vcd_source = r'signal_crt_analog_3.vcd'
->>> vcd_target = r'signal_crt_analog_3_new.vcd'
->>> vcd_info = r'signal_crt_analog_3_info.info'
->>> db = VCDToAnalog(vcd_source, vcd_target, vcd_info)
+vcd_source = r'signal_crt_analog_3.vcd'
+vcd_target = r'signal_crt_analog_3_new.vcd'
+vcd_info = r'signal_crt_analog_3_info.info'
+db = VCDToAnalog(vcd_source, vcd_target, vcd_info)
 
 --------------Start stop and simulation time presentation-------------------
 Shows the simulation start end and simulation time
@@ -38,16 +38,16 @@ the integer part can be anything although 1 is the most used value
 
 
 ------Command----------------
->>> db.show_start_time('1ns')
->>> db.show_end_time('1ns')
->>> db.show_sim_time('100ps')
->>> db.show_sim_time('1ns')
+db.show_start_time('1ns')
+db.show_end_time('1ns')
+db.show_sim_time('100ps')
+db.show_sim_time('1ns')
 
 ------Results----------------
->>> start time is 0.0(1ns)
->>> end time is 500.0(1ns)
->>> simulation time is 5000.0(100ps)
->>> simulation time is 500.0(1ns)
+start time is 0.0(1ns)
+end time is 500.0(1ns)
+simulation time is 5000.0(100ps)
+simulation time is 500.0(1ns)
 
 --------------Reduce vcd start time simulation-------------------------------------
 In some of the vcd files the dump is been done in times different than 0
@@ -111,7 +111,7 @@ the string part can be one of the following option ps, ns, us, ms, s
 the integer part can be any integer
 for example:
 
->>> sig_dict = {'CLK_160MHZ': {'520ns': '1', '540ns': '0'}, 'CLK_25MHZ': {'520ns': '0'}}
+sig_dict = {'CLK_160MHZ': {'520ns': '1', '540ns': '0'}, 'CLK_25MHZ': {'520ns': '0'}}
 
 ---------Action--------------
 change the signal CLK_25MHZ at 20ns from '0' to '1'
@@ -174,10 +174,10 @@ arg 3 (bool) --> if reduction to zero is wanted
 arg4 (str) --> if reduction to zero + delay is wanted
 
 ---------Action--------------
->>> slice vcd from '20ns' to '40ns'
+slice vcd from '20ns' to '40ns'
 
 ---------Command--------------
->>> db.slice_vcd('20ns', '40ns')
+db.slice_vcd('20ns', '40ns')
 
 ------Before change----------
 #10
@@ -208,10 +208,10 @@ $end
 #40
 
 ---------Action--------------
->>> slice vcd from '20ns' to '40ns' and then reduce to zero
+slice vcd from '20ns' to '40ns' and then reduce to zero
 
 ---------Command--------------
->>> db.slice_vcd('20ns', '40ns', True)
+db.slice_vcd('20ns', '40ns', True)
 
 -----------After change---------------
 #0
@@ -221,10 +221,10 @@ $end
 #20
 
 ---------Action--------------
->>> slice vcd from '20ns' to '40ns' reduce to zero and add '5ns'
+slice vcd from '20ns' to '40ns' reduce to zero and add '5ns'
 
 ---------Command--------------
->>> db.slice_vcd('20ns', '40ns', True, '5ns')
+db.slice_vcd('20ns', '40ns', True, '5ns')
 
 ----------After change--------------------
 #5
@@ -263,6 +263,13 @@ to 1.8
 ------------After change-----------------------
 .in CLK_25MHZ
 .vih 1.8 CLK_25MHZ
+
+---------------------Action------------------
+find the times where a value of a signal is been set in the vcd file
+
+-------------------Command-----------------------
+print(db.find_bit_change('5MHz_CLK', '1', 'ns'))
+
 
 
 -------------Change attribute to all signals -------------
@@ -354,9 +361,9 @@ See the representation of signal CLK_25MHZ
 Plot the signals CLK_25MHZ, CLK_160MHZ, 15MHz_CLK
 
 -------Command -----------------
->>> plot_ob = db.signals_to_plot('CLK_25MHZ', 'CLK_160MHZ', '15MHz_CLK')
->>> pso = PlotSignals(plot_ob)
->>> pso.plot_signals()
+plot_ob = db.signals_to_plot('CLK_25MHZ', 'CLK_160MHZ', '15MHz_CLK')
+pso = PlotSignals(plot_ob)
+pso.plot_signals()
 
 
 

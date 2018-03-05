@@ -7,11 +7,8 @@ class PlotSignals(object):
     plot signal from vcd data base
     """
 
-    # def __init__(self, signals_data_dict, signals_attri_dict):
     def __init__(self, plot_ob):
         """ Constructor """
-        # self._signals_data_dict = signals_data_dict
-        # self._signals_attri_dict = signals_attri_dict
 
         self._signals_data_dict = plot_ob[0]
         self._signals_attri_dict = plot_ob[1]
