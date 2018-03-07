@@ -2,7 +2,8 @@ import vcd_to_analog.Verilog_VCD as vcd
 import re
 from shutil import copyfile
 from vcd_to_analog.signal_data import Signal
-from collections import OrderedDict
+from collections import deque, OrderedDict
+from bisect import bisect_left
 
 
 class VCDToAnalog(object):
@@ -620,7 +621,7 @@ class VCDToAnalog(object):
         """
 
         # initiate list to contain the manipulated file
-        lst = []
+        lst = deque()
 
         # flag for indicating vcd start time
         find_first_time_step_flag = True
@@ -635,46 +636,41 @@ class VCDToAnalog(object):
         end_dumpvars_flag = True
 
         # var for slice start time equal or lower than vcd
-        min_tstart = 0
+        min_start_time = 0
 
         # var for slice stop time equal or higher than vcd
-        max_tend = 0
+        max_stop_time = 0
 
         time_convert_list = list(map(self._time_scale_convertor, [formatted_tstart, formatted_tend]))
 
         # Convert user time steps to vcd default time step values
-        tstart = (time_convert_list[0][0] / time_convert_list[0][2]) * time_convert_list[0][4]
-        tend = (time_convert_list[1][0] / time_convert_list[1][2]) * time_convert_list[1][4]
+        start_time = (time_convert_list[0][0] / time_convert_list[0][2]) * time_convert_list[0][4]
+        stop_time = (time_convert_list[1][0] / time_convert_list[1][2]) * time_convert_list[1][4]
 
         # write the vcd output file into list
         with open(self._vcd_output_path) as fo:
             file_list = fo.read().splitlines()
 
-        # List of all vcd time steps
-        time_step_list = []
+        # for fast pop left (pop(0 equivalent)
+        file_list = deque(file_list)
 
-        # Find all time steps in vcd output file and stores them in a list
-        for arg in file_list:
-            mo = re.search(r'^#(\d.*)', arg)
-            if mo:
-                time_step_list.append(int(mo.group(1)))
+        # List of all vcd time steps
+        time_step_list = [int(item) for item in re.findall(r'#(\d+)', ' '.join(file_list))]
 
         # Set start time step to be equal or less than user request
-        for item in time_step_list:
-            if item <= tstart:
-                min_tstart = item
+        min_start_time = time_step_list[bisect_left(time_step_list, start_time) - 1]
 
         # Set end time step to be equal or higher than user request
-        time_step_list.reverse()
-        for item in time_step_list:
-            if item >= tend:
-                max_tend = item
+        max_stop_time = time_step_list[bisect_left(time_step_list, stop_time) + 1]
+
+        # clear memory
+        del time_step_list
 
         # Write to string until find vcd first time step
         while find_first_time_step_flag:
 
             # Put list argument 0 in var line
-            line = file_list.pop(0)
+            line = file_list.popleft()
 
             # Search for first time step in vcd output file
             mo = re.search(r'^#(\d.*)', line)
@@ -697,19 +693,19 @@ class VCDToAnalog(object):
             if mo:
 
                 # If time step is not equal to user request skip writing lines
-                if int(mo.group(1)) != min_tstart:
-                    line = file_list.pop(0)
+                if int(mo.group(1)) != min_start_time:
+                    line = file_list.popleft()
 
                 # If match was found, write the line
                 # prepare the line for next loop and exit the existing loop
                 else:
                     lst.append('$dumpvars\n')
                     lst.append(line + '\n')
-                    line = file_list.pop(0)
+                    line = file_list.popleft()
                     find_user_first_time_step_flag = False
             # If didn't find time step match skip the line
             else:
-                line = file_list.pop(0)
+                line = file_list.popleft()
 
         while find_user_end_time_step_flag:
 
@@ -720,14 +716,14 @@ class VCDToAnalog(object):
             if mo:
 
                 # If didn't find end time step, write the line and move to next line
-                if int(mo.group(1)) != max_tend:
+                if int(mo.group(1)) != max_stop_time:
 
                     if end_dumpvars_flag:
                         lst.append(r'$end' + '\n')
                         end_dumpvars_flag = False
 
                     lst.append(line + '\n')
-                    line = file_list.pop(0)
+                    line = file_list.popleft()
 
                 # If found end time step, write the line and exit the loop
                 else:
@@ -737,7 +733,7 @@ class VCDToAnalog(object):
             # If didn't find end time step, write the line and move to next line
             else:
                 lst.append(line + '\n')
-                line = file_list.pop(0)
+                line = file_list.popleft()
         # Open vcd output file to write the manipulated data
 
         # If reduced, reduced the manipulated data to #0 and add delay
@@ -870,7 +866,6 @@ class VCDToAnalog(object):
 
         # loop over all user request signals
         for name in args:
-
             # get wildcard for signal == name
             wc = self._signals[name].get_wildcard()
 

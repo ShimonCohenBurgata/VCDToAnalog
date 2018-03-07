@@ -16,9 +16,13 @@ def main():
     # vcd_target = r'sim_new.vcd'
     # vcd_info = r'sim_info.info'
 
-    vcd_source = r'U:\shimonc\gen6\pd69201_top_recordings\pd69201_vcd_dump_res_det_to_ovl.vcd'
-    vcd_target = r'U:\shimonc\gen6\pd69201_top_recordings\sim_new.vcd'
-    vcd_info = r'U:\shimonc\gen6\pd69201_top_recordings\sim_info.info'
+    # vcd_source = r'U:\shimonc\gen6\pd69201_top_recordings\pd69201_vcd_dump_res_det_to_ovl.vcd'
+    # vcd_target = r'U:\shimonc\gen6\pd69201_top_recordings\sim_new.vcd'
+    # vcd_info = r'U:\shimonc\gen6\pd69201_top_recordings\sim_info.info'
+
+    vcd_source = r'C:\pd69201_top_recordings\pd69201_vcd_dump_res_det_to_ovl.vcd'
+    vcd_target = r'C:\pd69201_top_recordings\sim_new.vcd'
+    vcd_info = r'C:\pd69201_top_recordings\sim_info.info'
 
     db = VCDToAnalog(vcd_source, vcd_target, vcd_info)
 
@@ -41,10 +45,12 @@ def main():
     # db.change_signals_value(sig_dict)
 
     # db.slice_vcd('142ns', '472ns')
+    # db.slice_vcd('125ns', '220ns')
     # db.slice_vcd('142ns', '472ns', True, '170ns')
-    # db.slice_vcd('2000024254000ps', '2504023254000ps', True, '100ns')
-    db.slice_vcd('1998760000ns', '1998805000000ps')
-    # print(db._time_scale_convertor('1998760000ns'))
+    t1 = time.time()
+    db.slice_vcd('2000024us', '2504023us')
+    print(time.time() - t1)
+
     # attri_dict = {'trise': '10ns', 'tfall': '10ns', 'vih': 2.3, 'vil': 0.05, 'vol': 0.00001, 'voh': 2.5}
     # db.set_all_attributes(attri_dict)
 
@@ -71,8 +77,8 @@ def main():
     # print(str(db))
     # print(repr(db))
 
-    # print(db.find_bit_change('res_det_block_en_d', '1', 'ps'))
-    # print(db.find_bit_change('class_en_d', '1', 'ps'))
+    # print(db.find_bit_change('res_det_block_en_d', '1', 'us'))
+    # print(db.find_bit_change('class_en_d', '1', 'us'))
     # print(db.find_bit_change('accumulator[3:0]', 'b1010', 'ns'))
 
     # help(db)
