@@ -10,17 +10,21 @@ def main():
     Naive test later will be replaced with pytest
 
     """
-    dirpath = os.path.abspath(os.chdir('..' + r'\vcd_and_info_files'))
+    # dirpath = os.path.abspath(os.chdir('..' + r'\vcd_and_info_files'))
+    #
+    # vcd_source = r'sim.vcd'
+    # vcd_target = r'sim_new.vcd'
+    # vcd_info = r'sim_info.info'
 
-    vcd_source = r'sim.vcd'
-    vcd_target = r'sim_new.vcd'
-    vcd_info = r'sim_info.info'
+    vcd_source = r'U:\shimonc\gen6\pd69201_top_recordings\pd69201_vcd_dump_res_det_to_ovl.vcd'
+    vcd_target = r'U:\shimonc\gen6\pd69201_top_recordings\sim_new.vcd'
+    vcd_info = r'U:\shimonc\gen6\pd69201_top_recordings\sim_info.info'
 
     db = VCDToAnalog(vcd_source, vcd_target, vcd_info)
 
     # db.get_signal_info('CLK_25MHZ')
 
-    db.remove_consecutive_duplicates()
+    # db.remove_consecutive_duplicates()
 
     # db.show_start_time('1ns')
     # db.show_end_time('1ns')
@@ -38,8 +42,9 @@ def main():
 
     # db.slice_vcd('142ns', '472ns')
     # db.slice_vcd('142ns', '472ns', True, '170ns')
-    # db.slice_vcd('142ns', '472ns', True, '1000ns')
-
+    # db.slice_vcd('2000024254000ps', '2504023254000ps', True, '100ns')
+    db.slice_vcd('1998760000ns', '1998805000000ps')
+    # print(db._time_scale_convertor('1998760000ns'))
     # attri_dict = {'trise': '10ns', 'tfall': '10ns', 'vih': 2.3, 'vil': 0.05, 'vol': 0.00001, 'voh': 2.5}
     # db.set_all_attributes(attri_dict)
 
@@ -66,7 +71,8 @@ def main():
     # print(str(db))
     # print(repr(db))
 
-    # print(db.find_bit_change('5MHz_CLK', '1', 'ns'))
+    # print(db.find_bit_change('res_det_block_en_d', '1', 'ps'))
+    # print(db.find_bit_change('class_en_d', '1', 'ps'))
     # print(db.find_bit_change('accumulator[3:0]', 'b1010', 'ns'))
 
     # help(db)

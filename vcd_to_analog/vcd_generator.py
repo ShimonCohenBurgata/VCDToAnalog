@@ -640,11 +640,11 @@ class VCDToAnalog(object):
         # var for slice stop time equal or higher than vcd
         max_tend = 0
 
-        time_convert_list = list(map(self._time_scale_convertor, [formatted_tstart, formatted_tend, formatted_delay]))
+        time_convert_list = list(map(self._time_scale_convertor, [formatted_tstart, formatted_tend]))
 
         # Convert user time steps to vcd default time step values
-        tstart = time_convert_list[0][0] * time_convert_list[0][2] * time_convert_list[0][4]
-        tend = time_convert_list[1][0] * time_convert_list[1][2] * time_convert_list[1][4]
+        tstart = (time_convert_list[0][0] / time_convert_list[0][2]) * time_convert_list[0][4]
+        tend = (time_convert_list[1][0] / time_convert_list[1][2]) * time_convert_list[1][4]
 
         # write the vcd output file into list
         with open(self._vcd_output_path) as fo:

@@ -130,5 +130,5 @@ def test_set_all_attributes():
         mo = re.search(r'^\.({}) (.+) (.*)'.format('trise|tfall|vih|vil|vol|voh'), line)
         if mo:
             assert test_dict[mo.group(1)] == float(mo.group(2))
-            
+
 
