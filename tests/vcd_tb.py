@@ -1,6 +1,7 @@
 from vcd_to_analog.vcd_generator import VCDToAnalog
 from vcd_to_analog.plot_signals import PlotSignals
 import time
+from collections import OrderedDict
 import os
 
 
@@ -11,15 +12,15 @@ def main():
     """
     dirpath = os.path.abspath(os.chdir('..' + r'\vcd_and_info_files'))
 
-    vcd_source = r'signal_crt_analog_3.vcd'
-    vcd_target = r'signal_crt_analog_3_new.vcd'
-    vcd_info = r'signal_crt_analog_3_info.info'
+    vcd_source = r'sim.vcd'
+    vcd_target = r'sim_new.vcd'
+    vcd_info = r'sim_info.info'
 
     db = VCDToAnalog(vcd_source, vcd_target, vcd_info)
 
     # db.get_signal_info('CLK_25MHZ')
 
-    # db.remove_consecutive_duplicates()
+    db.remove_consecutive_duplicates()
 
     # db.show_start_time('1ns')
     # db.show_end_time('1ns')
@@ -42,6 +43,15 @@ def main():
     # attri_dict = {'trise': '10ns', 'tfall': '10ns', 'vih': 2.3, 'vil': 0.05, 'vol': 0.00001, 'voh': 2.5}
     # db.set_all_attributes(attri_dict)
 
+    # attribute_dict = OrderedDict()
+    # attribute_dict['trise'] = '10ns'
+    # attribute_dict['tfall'] = '8ns'
+    # attribute_dict['vih'] = 2.3
+    # attribute_dict['vil'] = 0.05
+    # attribute_dict['vol'] = 0.00001
+    # attribute_dict['voh'] = 2.5
+    # db.set_all_attributes(attribute_dict)
+
     # db.set_signal_attributes('CLK_25MHZ', 'vih', 1.8)
     # db.set_signal_attributes('CLK_25MHZ', 'trise', '10000ps')
     # db.set_signal_attributes('CLK_25MHZ', 'trise', '10ns')
@@ -54,10 +64,12 @@ def main():
     #
     # print(db.__repr__('CLK_25MHZ'))
     # print(str(db))
+    # print(repr(db))
 
     # print(db.find_bit_change('5MHz_CLK', '1', 'ns'))
+    # print(db.find_bit_change('accumulator[3:0]', 'b1010', 'ns'))
 
-    help(db)
+    # help(db)
     # help(db.remove_consecutive_duplicates)
 
 

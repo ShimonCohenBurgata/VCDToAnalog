@@ -327,7 +327,7 @@ class VCDToAnalog(object):
         self._simulation_start_time = self._start_time()
 
         # print the result bu calling object _show_time
-        print(self._show_time(self._simulation_start_time, 'start', opt_time))
+        return self._show_time(self._simulation_start_time, 'start', opt_time)
 
     def show_end_time(self, opt_time):
         """
@@ -340,7 +340,7 @@ class VCDToAnalog(object):
         self._simulation_end_time = self._end_time()
 
         # print the result bu calling object _show_time
-        print(self._show_time(self._simulation_end_time, 'end', opt_time))
+        return self._show_time(self._simulation_end_time, 'end', opt_time)
 
     def show_sim_time(self, opt_time=''):
         """
@@ -359,7 +359,7 @@ class VCDToAnalog(object):
         self._total_simulation_time = self._simulation_end_time - self._simulation_start_time
 
         # print the result by calling _show_time_method
-        print(self._show_time(self._simulation_end_time - self._simulation_start_time, 'simulation', opt_time))
+        return self._show_time(self._simulation_end_time - self._simulation_start_time, 'simulation', opt_time)
 
     def generate_reduced_vcd(self, formatted_delay='0ns'):
         """
@@ -631,6 +631,9 @@ class VCDToAnalog(object):
         # flag for indicating slice end time
         find_user_end_time_step_flag = True
 
+        # flag for writing $end after $dumpvars
+        end_dumpvars_flag = True
+
         # var for slice start time equal or lower than vcd
         min_tstart = 0
 
@@ -700,6 +703,7 @@ class VCDToAnalog(object):
                 # If match was found, write the line
                 # prepare the line for next loop and exit the existing loop
                 else:
+                    lst.append('$dumpvars\n')
                     lst.append(line + '\n')
                     line = file_list.pop(0)
                     find_user_first_time_step_flag = False
@@ -717,6 +721,11 @@ class VCDToAnalog(object):
 
                 # If didn't find end time step, write the line and move to next line
                 if int(mo.group(1)) != max_tend:
+
+                    if end_dumpvars_flag:
+                        lst.append(r'$end' + '\n')
+                        end_dumpvars_flag = False
+
                     lst.append(line + '\n')
                     line = file_list.pop(0)
 
@@ -744,6 +753,7 @@ class VCDToAnalog(object):
     def find_bit_change(self, signal_name, value, opt_time):
         """
         return dictionary of time steps where signal is changing to value
+        bus not supported(yet)
         Args:
             signal_name (str)
             value (str) '0' or '1'
@@ -766,7 +776,8 @@ class VCDToAnalog(object):
         wildcard = self._signals[signal_name].get_wildcard()
 
         # time step dictionary
-        time_step_dict = {}
+        # time_step_dict = {}
+        time_step_dict = OrderedDict()
 
         # keys for dictionary
         count = 1

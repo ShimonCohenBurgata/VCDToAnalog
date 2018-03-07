@@ -159,8 +159,8 @@ db.change_signals_value({'CLK_25MHZ': {'24ns': '1'}})
 change few signals at few time steps
 
 ----------Command-------------
->>> sig_dict = {'CLK_160MHZ': {'520ns': '1', '540ns': '0'}, 'CLK_25MHZ': {'520ns': '0'}}
->>> db.change_signals_value(sig_dict)
+sig_dict = {'CLK_160MHZ': {'520ns': '1', '540ns': '0'}, 'CLK_25MHZ': {'520ns': '0'}}
+db.change_signals_value(sig_dict)
 
 
 ------------------ Slicing the vcd file----------------------------
