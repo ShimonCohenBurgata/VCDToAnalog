@@ -27,10 +27,12 @@ def main():
     db = VCDToAnalog(vcd_source, vcd_target, vcd_info)
 
     # db.get_signal_info('CLK_25MHZ')
-
+    # t1 = time.time()
     # db.remove_consecutive_duplicates()
+    # print(time.time() - t1)
 
-    # db.show_start_time('1ns')
+    # db.show_start_time('10us')
+
     # db.show_end_time('1ns')
     # db.show_sim_time('1ns')
 
@@ -47,6 +49,7 @@ def main():
     # db.slice_vcd('142ns', '472ns')
     # db.slice_vcd('125ns', '220ns')
     # db.slice_vcd('142ns', '472ns', True, '170ns')
+
     t1 = time.time()
     db.slice_vcd('2000024us', '2504023us')
     print(time.time() - t1)

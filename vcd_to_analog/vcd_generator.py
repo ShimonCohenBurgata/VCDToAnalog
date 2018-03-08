@@ -635,12 +635,7 @@ class VCDToAnalog(object):
         # flag for writing $end after $dumpvars
         end_dumpvars_flag = True
 
-        # var for slice start time equal or lower than vcd
-        min_start_time = 0
-
-        # var for slice stop time equal or higher than vcd
-        max_stop_time = 0
-
+        # calculate ratios between user optional time format and vcd default format
         time_convert_list = list(map(self._time_scale_convertor, [formatted_tstart, formatted_tend]))
 
         # Convert user time steps to vcd default time step values
