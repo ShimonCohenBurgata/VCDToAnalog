@@ -5,17 +5,17 @@
 .trise 10.0 CLK_160MHZ
 .tfall 10.0 CLK_160MHZ
 
-.in CLK_25MHZ
-.vih 2.4 CLK_25MHZ
-.vil 0.05 CLK_25MHZ
-.trise 10.0 CLK_25MHZ
-.tfall 10.0 CLK_25MHZ
-
 .in accumulator[3:0]
 .vih 2.4 accumulator[3:0]
 .vil 0.05 accumulator[3:0]
 .trise 10.0 accumulator[3:0]
 .tfall 10.0 accumulator[3:0]
+
+.in CLK_25MHZ
+.vih 2.4 CLK_25MHZ
+.vil 0.05 CLK_25MHZ
+.trise 10.0 CLK_25MHZ
+.tfall 10.0 CLK_25MHZ
 
 .scope module I1 
 .hier 1

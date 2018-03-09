@@ -386,26 +386,12 @@ class VCDToAnalog(object):
         # calculate user request delay
         delay = int(ts_val * factor / def_ts_val)
 
-        # initiate list to contain the manipulated file
-        lst = []
-
         # open vcd output file
         with open(self._vcd_output_path, 'r') as fo:
-            for line in fo:
+            file_string = fo.read()
 
-                # match time step signature
-                mo = re.search(r'^#(\d.*)$', line)
-
-                # if match was found change the time step accordingly with regards to delay
-                if mo:
-                    lst.append('#{}\n'.format(int(mo.group(1)) - self._simulation_start_time + delay))
-
-                # if match was not found write the line without change it
-                else:
-                    lst.append(line)
-
-        # create string from string
-        st = ''.join(lst)
+        # find all time steps and reduced the first time step and add delay
+        st = re.sub(r'#(\d+)', lambda x: '#' + str(int(x.group(1)) - self._simulation_start_time + delay), file_string)
 
         # open vcd output file and write the manipulated string
         fo = open(self._vcd_output_path, 'w')

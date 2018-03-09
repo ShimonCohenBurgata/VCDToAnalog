@@ -10,19 +10,19 @@ def main():
     Naive test later will be replaced with pytest
 
     """
-    dirpath = os.path.abspath(os.chdir('..' + r'\vcd_and_info_files'))
-
-    vcd_source = r'sim.vcd'
-    vcd_target = r'sim_new.vcd'
-    vcd_info = r'sim_info.info'
+    # dirpath = os.path.abspath(os.chdir('..' + r'\vcd_and_info_files'))
+    #
+    # vcd_source = r'sim.vcd'
+    # vcd_target = r'sim_new.vcd'
+    # vcd_info = r'sim_info.info'
 
     # vcd_source = r'U:\shimonc\gen6\pd69201_top_recordings\pd69201_vcd_dump_res_det_to_ovl.vcd'
     # vcd_target = r'U:\shimonc\gen6\pd69201_top_recordings\sim_new.vcd'
     # vcd_info = r'U:\shimonc\gen6\pd69201_top_recordings\sim_info.info'
 
-    # vcd_source = r'C:\pd69201_top_recordings\pd69201_vcd_dump_res_det_to_ovl.vcd'
-    # vcd_target = r'C:\pd69201_top_recordings\sim_new.vcd'
-    # vcd_info = r'C:\pd69201_top_recordings\sim_info.info'
+    vcd_source = r'C:\pd69201_top_recordings\pd69201_vcd_dump_res_det_to_ovl.vcd'
+    vcd_target = r'C:\pd69201_top_recordings\sim_new.vcd'
+    vcd_info = r'C:\pd69201_top_recordings\sim_info.info'
 
     db = VCDToAnalog(vcd_source, vcd_target, vcd_info)
 
@@ -36,7 +36,9 @@ def main():
     # db.show_end_time('1ns')
     # db.show_sim_time('1ns')
 
-    # db.generate_reduced_vcd()
+    t1 = time.time()
+    db.generate_reduced_vcd()
+    print(time.time() - t1)
     # db.generate_reduced_vcd('1us')
 
     # sig_dict = {'15MHz_CLK': {'300ns': '0', '350ns': '1'}, '5MHz_CLK': {'65000ps': '1', '133ns': '0'}}
@@ -47,7 +49,7 @@ def main():
     # db.change_signals_value(sig_dict)
 
     # db.slice_vcd('142ns', '472ns')
-    db.slice_vcd('125ns', '220ns')
+    # db.slice_vcd('125ns', '220ns')
     # db.slice_vcd('142ns', '472ns', True, '170ns')
 
     # t1 = time.time()
