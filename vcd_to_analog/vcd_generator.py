@@ -278,14 +278,16 @@ class VCDToAnalog(object):
 
         # open the output file search for last time step signature
         # i.e. #10
-        with open(self._vcd_output_path, 'r') as fo:
-            for line in fo:
-                mo = re.search(r'^#(\d.*)$', line)
-                if mo:
-                    et = int(mo.group(1))
-                else:
-                    pass
-
+        fh = open(self._vcd_output_path, 'r')
+        for line in reversed(fh.readlines()):
+            mo = re.search(r'^#(\d+)$', line)
+            if mo:
+                et = int(mo.group(1))
+                fh.close()
+                break
+            else:
+                pass
+        fh.close()
         return et
 
     def _show_time(self, time, time_string, opt_time=''):
@@ -642,7 +644,7 @@ class VCDToAnalog(object):
 
         # add the user requested section to the list
 
-        lst.extend(file_list[min_start_time_index : max_stop_time_index + 1])
+        lst.extend(file_list[min_start_time_index: max_stop_time_index + 1])
 
         # If reduced, reduced the manipulated data to #0 and add delay
         if reduce:

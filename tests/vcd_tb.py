@@ -33,12 +33,14 @@ def main():
 
     # db.show_start_time('10us')
 
-    # db.show_end_time('1ns')
+    t1 = time.time()
+    print(db.show_end_time('1ms'))
+    print(time.time() - t1)
     # db.show_sim_time('1ns')
 
-    t1 = time.time()
-    db.generate_reduced_vcd()
-    print(time.time() - t1)
+    # t1 = time.time()
+    # db.generate_reduced_vcd()
+    # print(time.time() - t1)
     # db.generate_reduced_vcd('1us')
 
     # sig_dict = {'15MHz_CLK': {'300ns': '0', '350ns': '1'}, '5MHz_CLK': {'65000ps': '1', '133ns': '0'}}
