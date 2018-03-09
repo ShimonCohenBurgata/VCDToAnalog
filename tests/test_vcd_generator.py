@@ -87,9 +87,9 @@ def test_slice():
     vcd_info = os.path.join(file_path, 'sim_info.info')  # path to info file
     vcd_expected = os.path.join(file_path, 'sim_slice.vcd')  # path to comparision file
     db_slice = VCDToAnalog(vcd_source, vcd_target, vcd_info)  # generate vcd to analog object
+    db_slice.slice_vcd('125ns', '220ns')
     fh_result = open(vcd_target, 'r')  # read result file
     fh_expected = open(vcd_expected, 'r')  # read comparison file
-    db_slice.slice_vcd('125ns', '220ns')
     assert fh_result.read().splitlines() == fh_expected.read().splitlines()  # assert that files are equal
     fh_expected.close()  # close files
     fh_result.close()
