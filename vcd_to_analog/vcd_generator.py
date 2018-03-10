@@ -40,7 +40,7 @@ class VCDToAnalog(object):
         Generate vcd data base
         """
         try:
-            self._vcd = vcd.parse_vcd(self._vcd_output_path)
+            self._vcd = vcd.parse_vcd(self._vcd_output_path, only_sigs=1)
         except FileNotFoundError as e:
             print('{}'.format(e))
         self._init_signals()

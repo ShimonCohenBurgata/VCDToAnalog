@@ -33,9 +33,9 @@ def main():
 
     # db.show_start_time('10us')
 
-    t1 = time.time()
-    print(db.show_end_time('1ms'))
-    print(time.time() - t1)
+    # t1 = time.time()
+    # print(db.show_end_time('1ms'))
+    # print(time.time() - t1)
     # db.show_sim_time('1ns')
 
     # t1 = time.time()
