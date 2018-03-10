@@ -1,35 +1,35 @@
 .alias *[*] *<*>
-.in CLK_160MHZ
-.vih 2.4 CLK_160MHZ
-.vil 0.05 CLK_160MHZ
-.trise 10.0 CLK_160MHZ
-.tfall 10.0 CLK_160MHZ
-
 .in accumulator[3:0]
-.vih 2.4 accumulator[3:0]
-.vil 0.05 accumulator[3:0]
-.trise 10.0 accumulator[3:0]
-.tfall 10.0 accumulator[3:0]
+.vih 2.0 accumulator[3:0]
+.vil 0.0 accumulator[3:0]
+.trise 0.1 accumulator[3:0]
+.tfall 0.1 accumulator[3:0]
+
+.in CLK_160MHZ
+.vih 2.0 CLK_160MHZ
+.vil 0.0 CLK_160MHZ
+.trise 0.1 CLK_160MHZ
+.tfall 0.1 CLK_160MHZ
 
 .in CLK_25MHZ
-.vih 2.4 CLK_25MHZ
-.vil 0.05 CLK_25MHZ
-.trise 10.0 CLK_25MHZ
-.tfall 10.0 CLK_25MHZ
+.vih 2.0 CLK_25MHZ
+.vil 0.0 CLK_25MHZ
+.trise 0.1 CLK_25MHZ
+.tfall 0.1 CLK_25MHZ
 
 .scope module I1.I13 
 .hier 1
 .in 15MHz_CLK
-.vih 2.4 I1.I13.15MHz_CLK
-.vil 0.05 I1.I13.15MHz_CLK
-.trise 10.0 I1.I13.15MHz_CLK
-.tfall 10.0 I1.I13.15MHz_CLK
+.vih 2.0 I1.I13.15MHz_CLK
+.vil 0.0 I1.I13.15MHz_CLK
+.trise 0.1 I1.I13.15MHz_CLK
+.tfall 0.1 I1.I13.15MHz_CLK
 
 .scope module I1 
 .hier 1
 .in 5MHz_CLK
-.vih 2.4 I1.5MHz_CLK
-.vil 0.05 I1.5MHz_CLK
-.trise 10.0 I1.5MHz_CLK
-.tfall 10.0 I1.5MHz_CLK
+.vih 2.0 I1.5MHz_CLK
+.vil 0.0 I1.5MHz_CLK
+.trise 0.1 I1.5MHz_CLK
+.tfall 0.1 I1.5MHz_CLK
 

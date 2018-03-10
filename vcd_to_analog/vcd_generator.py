@@ -195,7 +195,7 @@ class VCDToAnalog(object):
             ts_unit = mo.group(2)
 
             # check that that the extracted units are part of the allowed values
-            if ts_unit not in ['ps', 'ns', 'us', 'ms', 's']:
+            if ts_unit not in ['fs', 'ps', 'ns', 'us', 'ms', 's']:
                 raise ValueError(
                     '--> {} <-- is not a valid time unit allowed values are ps, ns, us, ms, s'.format(ts_unit))
             # raise exception if units are not part of the allowed values
@@ -212,6 +212,7 @@ class VCDToAnalog(object):
 
         Args:
              opt_time(str) - The user defined time scale. the options are
+            'fs' --> femto second = 1e-15 seconds
             'ps' --> Pico second = 1e-12 seconds
             'ns' --> Nano second = 1e-9 seconds
             'us' --> Micro second = 1e-6 seconds
@@ -227,7 +228,7 @@ class VCDToAnalog(object):
 
         """
         # dict contains the relations between time units
-        ts_dict = {'ps': 1e12, 'ns': 1e9, 'us': 1e6, 'ms': 1e3, 's': 1}
+        ts_dict = {'fs': 1e15, 'ps': 1e12, 'ns': 1e9, 'us': 1e6, 'ms': 1e3, 's': 1}
 
         # get the vcd default time scale
         def_ts_val, def_ts_units = self._extract_formated_time_scale(self._timescale)
@@ -301,6 +302,7 @@ class VCDToAnalog(object):
             time_string (str) - string that represents the time tag (i.e. 'start', 'stop', 'simulation')
         kwargs:
             opt_time(str) - The user defined time scale. the options are
+            'fs' --> Femto second = 1e-15 seconds
             'ps' --> Pico second = 1e-12 seconds
             'ns' --> Nano second = 1e-9 seconds
             'us' --> Micro second = 1e-6 seconds
