@@ -1,0 +1,1 @@
+{'adc_clk_d': ['change', '0']}

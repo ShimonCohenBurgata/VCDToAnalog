@@ -1,0 +1,1 @@
+{'CLK_25MHZ': ['change', '0'], 'CLK_160MHZ': ['change', '0'], '5MHz_CLK': ['change', '0'], '15MHz_CLK': ['change', '0']}

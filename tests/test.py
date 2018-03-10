@@ -1,13 +1,22 @@
-import time
-from collections import deque
 import re
-from bisect import bisect_left, bisect_right
-import vcd_to_analog.Verilog_VCD as vcd
 import os
-
-# vcd_source = r'C:\pd69201_top_recordings\pd69201_vcd_dump_res_det_to_ovl.vcd'
-# test_file = r'C:\pd69201_top_recordings\test.vcd'
+import tests.set_signals as set_signal
 
 os.path.abspath(os.chdir('..' + r'\vcd_and_info_files'))
 vcd_source = r'sim.vcd'
-print(vcd.parse_vcd(vcd_source,only_sigs=1))
+with open(vcd_source, 'r') as fo:
+    st = fo.read()
+
+wildcard_dict = {'!': 'CLK_25MHZ', '"': 'CLK_160MHZ', '^': '5MHz_CLK', '\(': '15MHz_CLK', }
+value_dict = {value: key for key, value in wildcard_dict.items()}
+
+def_val = '0'
+
+fh = set_signal.set_signals()
+for signal in fh:
+    if fh[signal][0] == 'change':
+        wildcard = value_dict[signal]
+        def_val = fh[signal][1]
+        st = re.sub(r'([0|1])({})'.format(wildcard), lambda x: def_val + x.group(2), st)
+print(st)
+

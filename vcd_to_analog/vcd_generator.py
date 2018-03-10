@@ -4,6 +4,7 @@ from shutil import copyfile
 from vcd_to_analog.signal_data import Signal
 from collections import OrderedDict
 from bisect import bisect_left
+import ast
 
 
 class VCDToAnalog(object):
@@ -753,6 +754,55 @@ class VCDToAnalog(object):
 
         # update the info file
         self._generate_info_file()
+
+    def set_signals(self, set_signal_file):
+        """
+        Set a signal to a value for all simulation time
+        specially useful to disable oscillating signals if they are not needed in simulation
+
+        Args:
+            a file contains a dictionary with the following arguments
+            key = signal name
+            value = list with two argumnets
+                1. 'change' or 'no_change' select which signals to change and which not
+                2. value '0' or '1'
+                i.e.
+                '{'CLK_25MHZ': ['change', '0'], 'CLK_160MHZ': ['no_change', ''], '5MHz_CLK': ['no_change', ''], '15MHz_CLK': ['no_change', '']}'
+        """
+
+        # convert a String representation of a dictionary to a dictionary
+        with open(set_signal_file, 'r') as fo:
+            set_signal_dict = ast.literal_eval(fo.read())
+
+        # read output file
+        with open(self._vcd_output_path, 'r') as fo:
+            st = fo.read()
+
+        # create a dictionary where the keys are the signal manes and the value is the wildcard
+        name_dict = {self._vcd[key]['nets'][0]['name']: key for key in self._vcd}
+
+        # loop over all signals
+        for signal in set_signal_dict:
+
+            # check if the signal need to be changed
+            if set_signal_dict[signal][0] == 'change':
+
+                # get the wildcard representation of the signal
+                wildcard = name_dict[signal]
+
+                # add \ for special characters
+                if wildcard in ['^', '(', ')', '$', '+', '.', '*', '?']:
+                    wildcard = re.escape(wildcard)
+
+                # get the value of the signal to be changed to
+                def_val = set_signal_dict[signal][1]
+
+                # change the signal value in the string representation of the output file
+                st = re.sub(r'([0|1])({})'.format(wildcard), lambda x: def_val + x.group(2), st)
+
+        # write the manipulated string to the output file
+        with open(self._vcd_output_path, 'w') as fo:
+            fo.write(st)
 
     def signals_to_plot(self, *args):
         """
