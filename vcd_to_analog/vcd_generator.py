@@ -800,7 +800,7 @@ class VCDToAnalog(object):
                 def_val = set_signal_dict[signal][1]
 
                 # change the signal value in the string representation of the output file
-                st = re.sub(r'([0|1])({})'.format(wildcard), lambda x: def_val + x.group(2), st)
+                st = re.sub(r'([0|1])({})(\n)'.format(wildcard), lambda x: def_val + x.group(2) + '\n', st)
 
         # write the manipulated string to the output file
         with open(self._vcd_output_path, 'w') as fo:
