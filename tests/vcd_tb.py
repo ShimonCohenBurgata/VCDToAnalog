@@ -11,32 +11,45 @@ def main():
 
     """
     # os.path.abspath(os.chdir('..' + r'\vcd_and_info_files'))
-    #
+
     # vcd_source = r'sim.vcd'
     # vcd_target = r'sim_new.vcd'
     # vcd_info = r'sim_info.info'
     # set_signal_file = r'C:\Users\shcohen\PycharmProjects\VCDToAnalog\tests\set_signal_file.txt'
 
-    vcd_source = r'U:\shimonc\gen6\pd69201_top_recordings\pd69201_vcd_dump_res_det_to_ovl.vcd'
-    vcd_target = r'U:\shimonc\gen6\pd69201_top_recordings\sim_new.vcd'
-    vcd_info = r'U:\shimonc\gen6\pd69201_top_recordings\sim_info.info'
-    set_signal_file = r'U:\shimonc\gen6\pd69201_top_recordings\set_signal_file.txt'
+    # vcd_source = r'U:\shimonc\gen6\pd69201_top_recordings\pd69201_vcd_dump_res_det_to_ovl.vcd'
+    # vcd_target = r'U:\shimonc\gen6\pd69201_top_recordings\startup\sim_new.vcd'
+    # vcd_info = r'U:\shimonc\gen6\pd69201_top_recordings\startup\sim_info.info'
+    # set_signal_file = r'U:\shimonc\gen6\pd69201_top_recordings\startup\set_signal_file.txt'
 
-    # vcd_source = r'C:\pd69201_top_recordings\pd69201_vcd_dump_res_det_to_ovl.vcd'
-    # vcd_target = r'C:\pd69201_top_recordings\sim_new.vcd'
-    # vcd_info = r'C:\pd69201_top_recordings\sim_info.info'
+    vcd_source = r'C:\pd69201_top_recordings\pd69201_vcd_dump_res_det_to_ovl.vcd'
+    vcd_target = r'C:\pd69201_top_recordings\sim_new.vcd'
+    vcd_info = r'C:\pd69201_top_recordings\sim_info.info'
 
     db = VCDToAnalog(vcd_source, vcd_target, vcd_info)
+
+    # print(db.find_bit_change('res_det_block_en_d', '1', 'ps'))
+    # print(db.find_bit_change('generate_slope_d', '1', 'ms'))
+    # print(db.find_bit_change('generate_slope_d', '0', 'ms'))
+    # print(db.find_bit_change('accumulator[3:0]', 'b1010', 'ns'))
+
+    # db.slice_vcd('2500ms', '2660ms')
+    # db.set_signals(set_signal_file)
+    db.generate_reduced_vcd()
+    #
+    # print(db.show_start_time('1ms'))
+    # print(db.show_end_time('1ms'))
+    # print(db.show_sim_time('1ms'))
+
+    plot_ob = db.signals_to_plot('generate_slope_d', 'class_en_d')
+    pso = PlotSignals(plot_ob)
+    pso.plot_signals()
 
     # db.remove_consecutive_duplicates()
 
     # db.get_signal_info('CLK_25MHZ')
     # db.get_signal_info('accumulator[3:0]')
     # db.remove_consecutive_duplicates()
-
-    # print(db.show_start_time('1ms'))
-    # print(db.show_end_time('1ms'))
-    # print(db.show_sim_time('1ms'))
 
     # db.generate_reduced_vcd()
     # db.generate_reduced_vcd('1us')
@@ -52,11 +65,8 @@ def main():
     # db.slice_vcd('125ns', '220ns')
     # db.slice_vcd('142ns', '472ns', True, '170ns')
 
-    # t1 = time.time()
-    # db.slice_vcd('2000024000000ps', '2504023000000ps')
-    db.slice_vcd('2000024254000ps', '2504023254000ps')
-    db.set_signals(set_signal_file)
-    # print(time.time() - t1)
+    # db.slice_vcd('2000024254000ps', '2504023254000ps')
+    # db.set_signals(set_signal_file)
 
     # attri_dict = {'trise': '10ns', 'tfall': '10ns', 'vih': 2.3, 'vil': 0.05, 'vol': 0.00001, 'voh': 2.5}
     # db.set_all_attributes(attri_dict)
@@ -83,10 +93,6 @@ def main():
     # print(db.__repr__('CLK_25MHZ'))
     # print(str(db))
     # print(repr(db))
-
-    # print(db.find_bit_change('res_det_block_en_d', '1', 'ps'))
-    # print(db.find_bit_change('class_en_d', '1', 'ps'))
-    # print(db.find_bit_change('accumulator[3:0]', 'b1010', 'ns'))
 
     # help(db)
     # help(db.remove_consecutive_duplicates)

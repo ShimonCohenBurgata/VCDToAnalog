@@ -41,7 +41,7 @@ class VCDToAnalog(object):
         Generate vcd data base
         """
         try:
-            self._vcd = vcd.parse_vcd(self._vcd_output_path, only_sigs=1)
+            self._vcd = vcd.parse_vcd(self._vcd_output_path, only_sigs=0)
         except FileNotFoundError as e:
             print('{}'.format(e))
         self._init_signals()
@@ -833,6 +833,13 @@ class VCDToAnalog(object):
 
             # update data dict with values from vcd data base
             sig_data_dict[name] = self._vcd[wc]
+
+            # remove duplicate tuples
+            sig_data_dict[name]['tv'] = list(OrderedDict.fromkeys(sig_data_dict[name]['tv']))
+
+            # include only '0' and '1'
+            sig_data_dict[name]['tv'] = [(item[0], item[1]) for item in sig_data_dict[name]['tv'] if
+                                         item[1] == '1' or item[1] == '0']
 
             # update attributes with values from signals
             sig_attri_dict[name] = self._signals[name]
