@@ -36,12 +36,12 @@ class VCDToAnalog(object):
         self._total_simulation_time = self._simulation_end_time - self._simulation_start_time
         self._generate_info_file()
 
-    def _set_vcd(self):
+    def _set_vcd(self, only_sigs=1):
         """
         Generate vcd data base
         """
         try:
-            self._vcd = vcd.parse_vcd(self._vcd_output_path, only_sigs=0)
+            self._vcd = vcd.parse_vcd(self._vcd_output_path, only_sigs)
         except FileNotFoundError as e:
             print('{}'.format(e))
         self._init_signals()
@@ -816,15 +816,15 @@ class VCDToAnalog(object):
                 1. dictionary of signal time step values
                 2. dictionary of signal attribute objects
         """
+
+        # parse the vcd with time values ['tv']
+        self._set_vcd(0)
+
         # dictionary for signals data value
         sig_data_dict = OrderedDict()
 
         # dictionary for attributes value
         sig_attri_dict = OrderedDict()
-
-        # update vcd data base
-        # needed if manipulation method was called before this method
-        self._set_vcd()
 
         # loop over all user request signals
         for name in args:

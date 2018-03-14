@@ -17,31 +17,34 @@ def main():
     # vcd_info = r'sim_info.info'
     # set_signal_file = r'C:\Users\shcohen\PycharmProjects\VCDToAnalog\tests\set_signal_file.txt'
 
-    # vcd_source = r'U:\shimonc\gen6\pd69201_top_recordings\pd69201_vcd_dump_res_det_to_ovl.vcd'
-    # vcd_target = r'U:\shimonc\gen6\pd69201_top_recordings\startup\sim_new.vcd'
-    # vcd_info = r'U:\shimonc\gen6\pd69201_top_recordings\startup\sim_info.info'
-    # set_signal_file = r'U:\shimonc\gen6\pd69201_top_recordings\startup\set_signal_file.txt'
+    vcd_source = r'U:\shimonc\gen6\pd69201_top_recordings\pd69201_vcd_dump_res_det_to_ovl.vcd'
+    vcd_target = r'U:\shimonc\gen6\pd69201_top_recordings\startup\sim_new.vcd'
+    vcd_info = r'U:\shimonc\gen6\pd69201_top_recordings\startup\sim_info.info'
+    set_signal_file = r'U:\shimonc\gen6\pd69201_top_recordings\startup\set_signal_file.txt'
 
-    vcd_source = r'C:\pd69201_top_recordings\pd69201_vcd_dump_res_det_to_ovl.vcd'
-    vcd_target = r'C:\pd69201_top_recordings\sim_new.vcd'
-    vcd_info = r'C:\pd69201_top_recordings\sim_info.info'
+    # vcd_source = r'C:\pd69201_top_recordings\pd69201_vcd_dump_res_det_to_ovl.vcd'
+    # vcd_target = r'C:\pd69201_top_recordings\sim_new.vcd'
+    # vcd_info = r'C:\pd69201_top_recordings\sim_info.info'
 
     db = VCDToAnalog(vcd_source, vcd_target, vcd_info)
 
     # print(db.find_bit_change('res_det_block_en_d', '1', 'ps'))
     # print(db.find_bit_change('generate_slope_d', '1', 'ms'))
-    # print(db.find_bit_change('generate_slope_d', '0', 'ms'))
+    # print(db.find_bit_change('port_off_d', '0', 'ms'))
     # print(db.find_bit_change('accumulator[3:0]', 'b1010', 'ns'))
 
-    # db.slice_vcd('2500ms', '2660ms')
-    # db.set_signals(set_signal_file)
-    db.generate_reduced_vcd()
+    # attri_dict = {'trise': '10ns', 'tfall': '10ns', 'vih': 5, 'vil': 0.0, 'vol': 0.0, 'voh': 5}
+    # db.set_all_attributes(attri_dict)
     #
+    # db.slice_vcd('2550ms', '2630ms')
+    # db.set_signals(set_signal_file)
+    # db.generate_reduced_vcd()
+    # #
     # print(db.show_start_time('1ms'))
     # print(db.show_end_time('1ms'))
     # print(db.show_sim_time('1ms'))
 
-    plot_ob = db.signals_to_plot('generate_slope_d', 'class_en_d')
+    plot_ob = db.signals_to_plot('class_en_d', 'generate_slope_d')
     pso = PlotSignals(plot_ob)
     pso.plot_signals()
 
