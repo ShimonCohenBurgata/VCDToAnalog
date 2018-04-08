@@ -646,18 +646,16 @@ class VCDToAnalog(object):
         max_stop_time_index = file_list.index(max_stop_time)
 
         # add the user requested section to the list
-
         lst.extend(file_list[min_start_time_index: max_stop_time_index + 1])
+
+        # write to output file
+        fw = open(self._vcd_output_path, 'w')
+        fw.write('\n'.join(lst))
+        fw.close()
 
         # If reduced, reduced the manipulated data to #0 and add delay
         if reduce:
             self.generate_reduced_vcd(formatted_delay)
-
-        # If not reduced write the data as is
-        else:
-            fw = open(self._vcd_output_path, 'w')
-            fw.write('\n'.join(lst))
-            fw.close()
 
     def find_bit_change(self, signal_name, value, opt_time):
         """

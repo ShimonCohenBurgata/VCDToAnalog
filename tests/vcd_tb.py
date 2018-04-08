@@ -8,7 +8,6 @@ import os
 def main():
     """
     Naive test later will be replaced with pytest
-
     """
     # os.path.abspath(os.chdir('..' + r'\vcd_and_info_files'))
 
@@ -17,16 +16,42 @@ def main():
     # vcd_info = r'sim_info.info'
     # set_signal_file = r'C:\Users\shcohen\PycharmProjects\VCDToAnalog\tests\set_signal_file.txt'
 
-    vcd_source = r'U:\shimonc\gen6\pd69201_top_recordings\pd69201_vcd_dump_res_det_to_ovl.vcd'
-    vcd_target = r'U:\shimonc\gen6\pd69201_top_recordings\startup\sim_new.vcd'
-    vcd_info = r'U:\shimonc\gen6\pd69201_top_recordings\startup\sim_info.info'
-    set_signal_file = r'U:\shimonc\gen6\pd69201_top_recordings\startup\set_signal_file.txt'
-
     # vcd_source = r'C:\pd69201_top_recordings\pd69201_vcd_dump_res_det_to_ovl.vcd'
     # vcd_target = r'C:\pd69201_top_recordings\sim_new.vcd'
     # vcd_info = r'C:\pd69201_top_recordings\sim_info.info'
 
+    # line detection script
+    # vcd_source = r'U:\shimonc\gen6\pd69201_top_recordings\pd69201_vcd_dump_res_det_to_ovl.vcd'
+    # vcd_target = r'U:\shimonc\gen6\pd69201_top_recordings\res_det\sim_new.vcd'
+    # vcd_info = r'U:\shimonc\gen6\pd69201_top_recordings\res_det\sim_info.info'
+    # set_signal_file = r'U:\shimonc\gen6\pd69201_top_recordings\res_det\set_signal_file.txt'
+    # db = VCDToAnalog(vcd_source, vcd_target, vcd_info)
+    # # print(db.find_bit_change('class_en_d', '1', 'ms'))
+    # db.slice_vcd('0ms', '2505ms', True, '20ms')
+    # db.set_signals(set_signal_file)
+    # attri_dict = {'trise': '10ns', 'tfall': '10ns', 'vih': 5, 'vil': 0.0, 'vol': 0.0, 'voh': 5}
+    # db.set_all_attributes(attri_dict)
+
+    # short on start up script
+    vcd_source = r'U:\shimonc\gen6\pd69201_top_recordings\pd69201_vcd_short_on_su.vcd'
+    vcd_target = r'U:\shimonc\gen6\pd69201_top_recordings\start_up_to_short\sim_new.vcd'
+    vcd_info = r'U:\shimonc\gen6\pd69201_top_recordings\start_up_to_short\sim_info.info'
+    set_signal_file = r'U:\shimonc\gen6\pd69201_top_recordings\start_up_to_short\set_signal_file.txt'
     db = VCDToAnalog(vcd_source, vcd_target, vcd_info)
+    # db.generate_reduced_vcd()
+    db.slice_vcd('2500ms', '2580ms', True, '20ms')
+    print(db.show_start_time('1ms'))
+    print(db.show_end_time('1ms'))
+    print(db.show_sim_time('1ms'))
+    # print(db.find_bit_change('port_off_d', '1', 'ms'))
+    # print(db.find_bit_change('port_off_d', '0', 'ms'))
+    # plot_ob = db.signals_to_plot('port_off_d')
+    # pso = PlotSignals(plot_ob)
+    # pso.plot_signals()
+
+    # db.set_signals(set_signal_file)
+    # attri_dict = {'trise': '10ns', 'tfall': '10ns', 'vih': 5, 'vil': 0.0, 'vol': 0.0, 'voh': 5}
+    # db.set_all_attributes(attri_dict)
 
     # print(db.find_bit_change('res_det_block_en_d', '1', 'ps'))
     # print(db.find_bit_change('generate_slope_d', '1', 'ms'))
@@ -40,13 +65,10 @@ def main():
     # db.set_signals(set_signal_file)
     # db.generate_reduced_vcd()
     # #
-    # print(db.show_start_time('1ms'))
-    # print(db.show_end_time('1ms'))
-    # print(db.show_sim_time('1ms'))
 
-    plot_ob = db.signals_to_plot('class_en_d', 'generate_slope_d')
-    pso = PlotSignals(plot_ob)
-    pso.plot_signals()
+    # plot_ob = db.signals_to_plot('class_en_d', 'generate_slope_d')
+    # pso = PlotSignals(plot_ob)
+    # pso.plot_signals()
 
     # db.remove_consecutive_duplicates()
 
@@ -55,7 +77,11 @@ def main():
     # db.remove_consecutive_duplicates()
 
     # db.generate_reduced_vcd()
-    # db.generate_reduced_vcd('1us')
+    # db.generate_reduced_vcd('1ms')
+    # print(db.find_bit_change('res_det_block_en_d', '1', 'ms'))
+    # print(db.find_bit_change('class_en_d', '1', 'ms'))
+    # db.slice_vcd('0ms', '510ms')
+    # db.set_signals(set_signal_file)
 
     # sig_dict = {'15MHz_CLK': {'300ns': '0', '350ns': '1'}, '5MHz_CLK': {'65000ps': '1', '133ns': '0'}}
     # sig_dict = {'5MHz_CLK': {'65ns': '1', '133ns': '0'}}
