@@ -3,5 +3,6 @@ __pycache__
 tests/.cache/
 tests/.pytest_cache/
 .pytest_cache/
+tests/vcd_tb.py
 
 

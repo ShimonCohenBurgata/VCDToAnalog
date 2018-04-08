@@ -33,25 +33,49 @@ def main():
     # db.set_all_attributes(attri_dict)
 
     # short on start up script
-    vcd_source = r'U:\shimonc\gen6\pd69201_top_recordings\pd69201_vcd_short_on_su.vcd'
-    vcd_target = r'U:\shimonc\gen6\pd69201_top_recordings\start_up_to_short\sim_new.vcd'
-    vcd_info = r'U:\shimonc\gen6\pd69201_top_recordings\start_up_to_short\sim_info.info'
-    set_signal_file = r'U:\shimonc\gen6\pd69201_top_recordings\start_up_to_short\set_signal_file.txt'
-    db = VCDToAnalog(vcd_source, vcd_target, vcd_info)
+    # vcd_source = r'U:\shimonc\gen6\pd69201_top_recordings\pd69201_vcd_short_on_su.vcd'
+    # vcd_target = r'U:\shimonc\gen6\pd69201_top_recordings\start_up_to_short\sim_new.vcd'
+    # vcd_info = r'U:\shimonc\gen6\pd69201_top_recordings\start_up_to_short\sim_info.info'
+    # set_signal_file = r'U:\shimonc\gen6\pd69201_top_recordings\start_up_to_short\set_signal_file.txt'
+    # db = VCDToAnalog(vcd_source, vcd_target, vcd_info)
     # db.generate_reduced_vcd()
-    db.slice_vcd('2500ms', '2580ms', True, '20ms')
-    print(db.show_start_time('1ms'))
-    print(db.show_end_time('1ms'))
-    print(db.show_sim_time('1ms'))
+    # print(db.show_start_time('1ms'))
+    # print(db.show_end_time('1ms'))
+    # print(db.show_sim_time('1ms'))
     # print(db.find_bit_change('port_off_d', '1', 'ms'))
     # print(db.find_bit_change('port_off_d', '0', 'ms'))
-    # plot_ob = db.signals_to_plot('port_off_d')
-    # pso = PlotSignals(plot_ob)
-    # pso.plot_signals()
-
+    # print(db.find_bit_change('class_en_d', '1', 'ms'))
+    # print(db.find_bit_change('class_en_d', '0', 'ms'))
     # db.set_signals(set_signal_file)
     # attri_dict = {'trise': '10ns', 'tfall': '10ns', 'vih': 5, 'vil': 0.0, 'vol': 0.0, 'voh': 5}
     # db.set_all_attributes(attri_dict)
+
+    # short after port on
+    vcd_source = r'U:\shimonc\gen6\pd69201_top_recordings\pd69201_vcd_short.vcd'
+    vcd_target = r'U:\shimonc\gen6\pd69201_top_recordings\port_on_short\sim_new.vcd'
+    vcd_info = r'U:\shimonc\gen6\pd69201_top_recordings\port_on_short\sim_info.info'
+    set_signal_file = r'U:\shimonc\gen6\pd69201_top_recordings\port_on_short\set_signal_file.txt'
+    db = VCDToAnalog(vcd_source, vcd_target, vcd_info)
+    db.generate_reduced_vcd()
+    print(db.show_start_time('1ms'))
+    print(db.show_end_time('1ms'))
+    print(db.show_sim_time('1ms'))
+    print(db.find_bit_change('port_off_d', '1', 'ms'))
+    print(db.find_bit_change('port_off_d', '0', 'ms'))
+    print(db.find_bit_change('class_en_d', '1', 'ms'))
+    print(db.find_bit_change('class_en_d', '0', 'ms'))
+    db.set_signals(set_signal_file)
+    attri_dict = {'trise': '10ns', 'tfall': '10ns', 'vih': 5, 'vil': 0.0, 'vol': 0.0, 'voh': 5}
+    db.set_all_attributes(attri_dict)
+
+
+
+
+
+
+
+
+
 
     # print(db.find_bit_change('res_det_block_en_d', '1', 'ps'))
     # print(db.find_bit_change('generate_slope_d', '1', 'ms'))
