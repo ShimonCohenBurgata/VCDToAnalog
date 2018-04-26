@@ -726,7 +726,7 @@ class VCDToAnalog(object):
             if key == 'trise' or key == 'tfall':
                 time_convert_list = list(self._time_scale_convertor(attri_dict[key]))
                 # Convert user time steps to vcd default time step values
-                attri_dict[key] = time_convert_list[0] * time_convert_list[2] * time_convert_list[4]
+                attri_dict[key] = time_convert_list[0] * time_convert_list[4] / time_convert_list[2]
 
             # loop over all signal anf change their attributes
             for signal in self._signals.keys():
@@ -747,7 +747,7 @@ class VCDToAnalog(object):
         if attributes == 'trise' or attributes == 'tfall':
             time_convert_list = list(self._time_scale_convertor(val))
             # Convert user time steps to vcd default time step values
-            val = time_convert_list[0] * time_convert_list[2] * time_convert_list[4]
+            val = time_convert_list[0] * time_convert_list[4] / time_convert_list[2]
 
         # change the signal attribute
         self._signals[signal_name].set_attri(attributes, val)
